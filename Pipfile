@@ -8,6 +8,7 @@ django = "*"
 djangorestframework = "*"
 drf-yasg = "*"
 pillow = "*"
+python-decouple = "*"
 
 [dev-packages]
 
