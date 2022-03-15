@@ -16,7 +16,10 @@ class Question(models.Model):
     def __str__(self):
         return self.user.all().first().username + ' - ' + self.string_question
 
-
+class City(models.Model):
+    city_name=models.CharField(max_length=200)
+    def __str__(self):
+        return self.city_name
 
 
 class User(AbstractUser):
@@ -37,9 +40,10 @@ class User(AbstractUser):
     gender = models.CharField(max_length=1, choices=GENDER, null=True, blank=True,default=None)
     birthdate = models.DateField(null=True, blank=True,default=None)
     profile_pic = models.ImageField(upload_to='images/profile_pics/', null=True, blank=True,default=None)
-    ssn = models.CharField(max_length=20,blank=True,unique=True)
+    ssn = models.CharField(max_length=20,blank=True,unique=True,null=True)
+    citizens_ssn = models.CharField(max_length=20,blank=True,unique=True,null=True)
     questions = models.ManyToManyField(Question,related_name="user",blank=True)
-
+    user_city = models.ForeignKey(City,related_name="city",blank=True,on_delete=models.CASCADE,null=True)
     def __str__(self):
         return self.username
 

@@ -1,3 +1,4 @@
+from dataclasses import fields
 from operator import truediv
 from tkinter import E
 from rest_framework import serializers
@@ -5,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from datetime import date
-from .models import Question
+from .models import City, Question
 
 User_Model=get_user_model()
 
@@ -27,9 +28,6 @@ class QuestionSerializer(serializers.ModelSerializer):
         }
 
 
-
-
-
 # create users
 class UserSerializer(serializers.ModelSerializer):
     questions=QuestionSerializer(many=True)
@@ -44,10 +42,11 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'questions',
             'ssn',
-
+            'citizens_ssn',
             'gender',
             'birthdate',
             'profile_pic',
+            'user_city',
 
 
         )
@@ -55,14 +54,18 @@ class UserSerializer(serializers.ModelSerializer):
             'password' : {'write_only':True},
             'id' : {'read_only':True},
             'username' : {'required':True},
-            'email' : {'required':True},
+            # 'email' : {'required':True},
             'first_name' : {'required':True},
             'last_name' : {'required':True},
-            'ssn' : {'required':True},
+            'user_city' : {'required':True},
+            
+
+            'ssn' : {'required':False},
+            'citizens_ssn' : {'required':False},
             
             'questions':{'required':False},
-            'gender' : {'required':True},
-            'birthdate' : {'required':True},
+            'gender' : {'required':False},
+            'birthdate' : {'required':False},
             'profile_pic' : {'required':False},
         }
 
@@ -73,9 +76,7 @@ class UserSerializer(serializers.ModelSerializer):
             password = validated_data['password'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            ssn=validated_data['ssn'],
-            gender=validated_data['gender'],
-            birthdate=validated_data['birthdate'],
+            user_city=validated_data['user_city'],
         )
         all_questions = validated_data.pop('questions')
         for question_obj in all_questions:
@@ -83,12 +84,36 @@ class UserSerializer(serializers.ModelSerializer):
             user.questions.add(question_instance)
 
         try:
+            if(validated_data['ssn']!=None):
+                user.ssn=validated_data['ssn']
+        except:
+            pass
+
+        try:
+            if(validated_data['citizens_ssn']!=None):
+                user.citizens_ssn=validated_data['citizens_ssn']
+        except:
+            pass
+
+        try:
+            if(validated_data['birthdate']!=None):
+                user.birthdate=validated_data['birthdate']
+        except:
+            pass
+
+        try:
+            if(validated_data['gender']!=None):
+                user.gender=validated_data['gender']
+        except:
+            pass
+
+        try:
             if(validated_data['profile_pic']!=None):
                 user.profile_pic=validated_data['profile_pic']
-                user.save()
         except:
-                user.save()
-        
+            pass
+                
+        user.save()
         return user
 
 
@@ -165,10 +190,16 @@ class ResetPasswordSerializer(serializers.Serializer):
         return data
 
 
+class GetCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields="__all__"
+
 
 class GetUserDataSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField('get_profile_url')
     questions=QuestionSerializer(many=True)
+    user_city=GetCitySerializer()
     def get_profile_url(self, model):
         if model.profile_pic:
             request = self.context.get("request")
@@ -179,9 +210,6 @@ class GetUserDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = User_Model
         exclude =['password','user_permissions','groups']
-
-
-
 
 
 

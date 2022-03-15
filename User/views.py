@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.shortcuts import render
 from logging import error
 from django.db.models.query import QuerySet
@@ -18,6 +19,10 @@ from rest_framework import status
 import random
 import threading
 from rest_framework import filters
+from rest_framework import parsers
+from rest_framework import renderers
+from rest_framework.authtoken.models import Token
+
 
 from .serializers import *
 from .permissions import *
@@ -188,7 +193,7 @@ class GetUserInfo(APIView):
 
 
 
-#login view
+# login view
 
 @method_decorator(csrf_exempt, name='dispatch')
 class TokenAuthenticationView(ObtainAuthToken):
@@ -197,7 +202,7 @@ class TokenAuthenticationView(ObtainAuthToken):
         result = super(TokenAuthenticationView, self).post(request)
         currentUserModel = get_user_model()
         try:
-            user = currentUserModel.objects.get(username=request.data['username'])
+            user = currentUserModel.objects.get(email=request.data['email'])
             update_last_login(None, user)
         except Exception as exc:
             return None
@@ -207,6 +212,9 @@ class TokenAuthenticationView(ObtainAuthToken):
 
 
 
+class GetCityList(ListCreateAPIView):
+    serializer_class=GetCitySerializer
+    queryset=City.objects.all()
 
 
 
