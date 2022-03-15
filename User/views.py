@@ -108,7 +108,7 @@ class SendRegisterEmail(GenericAPIView):
         randomcode = random.randrange(111111, 999999)
         msg="Registration"
         if serializer.is_valid():
-            email_body = render_to_string("Email_Templates/email.html",{"message":msg,"randomcode":randomcode,"full_name":serializer.data['username']})
+            email_body = render_to_string("Email_Templates/email.html",{"message":msg,"randomcode":randomcode,"full_name":serializer.data['name']})
             email = EmailMessage(
                 'ACTIVATION CODE',
                 email_body,
@@ -133,16 +133,16 @@ class SendResetPasswordEmail(GenericAPIView):
         randomcode = random.randrange(111111, 999999)
         msg="Reset Password"
         if serializer.is_valid():
-            if(get_object_or_404(User_Model, email=serializer.validated_data['email']).first_name   or   get_object_or_404(User_Model, email=serializer.validated_data['email']).last_name):
-                full_name=(get_object_or_404(User_Model, email=serializer.validated_data['email']).get_full_name)
+            if(get_object_or_404(User_Model, username=serializer.validated_data['email']).first_name   or   get_object_or_404(User_Model, username=serializer.validated_data['email']).last_name):
+                full_name=(get_object_or_404(User_Model, username=serializer.validated_data['email']).get_full_name)
 
             else:
-                full_name=(get_object_or_404(User_Model, email=serializer.validated_data['email']).username)
+                full_name=(get_object_or_404(User_Model, username=serializer.validated_data['email']).username)
             email_body = render_to_string("Email_Templates/email.html",{"message":msg,"randomcode":randomcode,"full_name":full_name})
             email = EmailMessage(
                 'ACTIVATION CODE',
                 email_body,
-                'SES API TEAM',
+                'MyMed',
                 [serializer.data['email']],
             )
             email.content_subtype = "html"
@@ -163,7 +163,7 @@ class ResetPasswordView(UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             # self.object = User_Model.objects.filter(email=serializer.validated_data['email'])
-            self.object=get_object_or_404(User_Model, email=serializer.validated_data['email'])
+            self.object=get_object_or_404(User_Model, username=serializer.validated_data['email'])
             self.object.set_password(serializer.data.get("new_password1"))
             self.object.save()
             response = {
@@ -202,7 +202,7 @@ class TokenAuthenticationView(ObtainAuthToken):
         result = super(TokenAuthenticationView, self).post(request)
         currentUserModel = get_user_model()
         try:
-            user = currentUserModel.objects.get(email=request.data['email'])
+            user = currentUserModel.objects.get(username=request.data['username'])
             update_last_login(None, user)
         except Exception as exc:
             return None

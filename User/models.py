@@ -26,6 +26,7 @@ class User(AbstractUser):
     GENDER = (
         ('M', 'Male'),
         ('F', 'Female'),
+        ('O', 'Others'),
     )
     password = models.CharField(
         blank=False,
@@ -34,7 +35,7 @@ class User(AbstractUser):
             RegexValidator(regex="^(?=.*[0-9])",message='Password must contain at least one number.'),
             RegexValidator(regex="^(?=.{8,})",message='Password must be eight characters or longer.')]
         )
-    email = models.EmailField(unique=True, blank=False)
+    username = models.EmailField(unique=True, blank=False)
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER, null=True, blank=True,default=None)

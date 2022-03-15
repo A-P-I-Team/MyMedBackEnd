@@ -37,7 +37,6 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'password',
-            'email',
             'first_name',
             'last_name',
             'questions',
@@ -54,7 +53,6 @@ class UserSerializer(serializers.ModelSerializer):
             'password' : {'write_only':True},
             'id' : {'read_only':True},
             'username' : {'required':True},
-            # 'email' : {'required':True},
             'first_name' : {'required':True},
             'last_name' : {'required':True},
             'user_city' : {'required':True},
@@ -72,7 +70,6 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User_Model.objects.create_user(
             username = validated_data['username'],
-            email = validated_data['email'],
             password = validated_data['password'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
@@ -143,13 +140,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 class SendregisterEmailSerializer(serializers.Serializer):
     model = User_Model
     email = serializers.EmailField(required=True)
-    username=serializers.CharField(required=True)
+    name=serializers.CharField(required=True)
 
     def validate(self,data):
-        if (User_Model.objects.filter(email=data['email'])):
+        if (User_Model.objects.filter(username=data['email'])):
             raise serializers.ValidationError("There is another account with this email")
-        if (User_Model.objects.filter(username=data['username'])):
-            raise serializers.ValidationError("There is another account with this username")
         return data
 
 
@@ -162,7 +157,7 @@ class SendpasswordresetEmailSerializer(serializers.Serializer):
     def validate(self,data):
         # if not(User_model.objects.filter(email=data['email'])):
         #     raise serializers.ValidationError("there is no email like this!")
-        if not User_Model.objects.filter(email=data['email']):
+        if not User_Model.objects.filter(username=data['email']):
             raise serializers.ValidationError("Email Does Not Exist")
         return data
 
@@ -183,9 +178,9 @@ class ResetPasswordSerializer(serializers.Serializer):
     def validate(self,data):
         if data['new_password1']!=data['new_password2']:
             raise serializers.ValidationError("Passwords are not the same")
-        if not User_Model.objects.filter(email=data['email']):
+        if not User_Model.objects.filter(username=data['email']):
             raise serializers.ValidationError("Email Does Not Exist")
-        if get_object_or_404(User_Model, email=data['email']).check_password(data['new_password1']):
+        if get_object_or_404(User_Model, username=data['email']).check_password(data['new_password1']):
             raise serializers.ValidationError("New password cannot be the same as current password")
         return data
 
@@ -209,7 +204,7 @@ class GetUserDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User_Model
-        exclude =['password','user_permissions','groups']
+        exclude =['password','user_permissions','groups','email']
 
 
 
