@@ -33,7 +33,7 @@ SECRET_KEY = config('SECRET_KEY',default='a5ds16sa1f5as1d51a5sf135as1d5a1sf5a1sd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mymed.pythonanywhere.com',]
 
 
 # Application definition
