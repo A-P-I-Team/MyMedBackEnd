@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.shortcuts import get_object_or_404
 from datetime import date
-from .models import City, Question
+from .models import City
 
 User_Model=get_user_model()
 
@@ -17,20 +17,20 @@ Password_validation=[RegexValidator(regex="^(?=.*[A-Z])",message='Password must 
 
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+# class QuestionSerializer(serializers.ModelSerializer):
  
-    class Meta:
-        model = Question
-        fields = "__all__"
-        extra_kwargs = {
-            'string_answer' : {'required':False},
-            'bool_answer' : {'required':False},
-        }
+#     class Meta:
+#         model = Question
+#         fields = "__all__"
+#         extra_kwargs = {
+#             'string_answer' : {'required':False},
+#             'bool_answer' : {'required':False},
+#         }
 
 
 # create users
 class UserSerializer(serializers.ModelSerializer):
-    questions=QuestionSerializer(many=True)
+    # questions=QuestionSerializer(many=True)
     class Meta:
         model = User_Model
         fields = (
@@ -39,13 +39,14 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
             'first_name',
             'last_name',
-            'questions',
             'ssn',
             'citizens_ssn',
             'gender',
             'birthdate',
             'profile_pic',
             'user_city',
+            'relationship_status',
+            'isVaccinated',
 
 
         )
@@ -61,7 +62,9 @@ class UserSerializer(serializers.ModelSerializer):
             'ssn' : {'required':False},
             'citizens_ssn' : {'required':False},
             
-            'questions':{'required':False},
+            'relationship_status':{'required':True},
+            'isVaccinated':{'required':True},
+
             'gender' : {'required':False},
             'birthdate' : {'required':False},
             'profile_pic' : {'required':False},
@@ -75,10 +78,6 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name'],
             user_city=validated_data['user_city'],
         )
-        all_questions = validated_data.pop('questions')
-        for question_obj in all_questions:
-            question_instance=Question.objects.create(**question_obj)
-            user.questions.add(question_instance)
 
         try:
             if(validated_data['ssn']!=None):
@@ -107,6 +106,20 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             if(validated_data['profile_pic']!=None):
                 user.profile_pic=validated_data['profile_pic']
+        except:
+            pass
+
+
+        try:
+            if(validated_data['relationship_status']!=None):
+                user.relationship_status=validated_data['relationship_status']
+        except:
+            pass
+
+
+        try:
+            if(validated_data['isVaccinated']!=None):
+                user.isVaccinated=validated_data['isVaccinated']
         except:
             pass
                 
@@ -193,7 +206,7 @@ class GetCitySerializer(serializers.ModelSerializer):
 
 class GetUserDataSerializer(serializers.ModelSerializer):
     profile_pic = serializers.SerializerMethodField('get_profile_url')
-    questions=QuestionSerializer(many=True)
+    # questions=QuestionSerializer(many=True)
     user_city=GetCitySerializer()
     def get_profile_url(self, model):
         if model.profile_pic:

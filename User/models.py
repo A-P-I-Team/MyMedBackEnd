@@ -7,14 +7,14 @@ from django.core.validators import RegexValidator
 
 
 
-class Question(models.Model):
-    string_question=models.CharField(max_length=200)
-    string_answer=models.CharField(max_length=200,null=True, blank=True)
-    bool_answer=models.BooleanField(null=True, blank=True)
+# class Question(models.Model):
+#     string_question=models.CharField(max_length=200)
+#     string_answer=models.CharField(max_length=200,null=True, blank=True)
+#     bool_answer=models.BooleanField(null=True, blank=True)
 
     
-    def __str__(self):
-        return self.user.all().first().username + ' - ' + self.string_question
+#     def __str__(self):
+#         return self.user.all().first().username + ' - ' + self.string_question
 
 class City(models.Model):
     city_name=models.CharField(max_length=200)
@@ -43,7 +43,11 @@ class User(AbstractUser):
     profile_pic = models.ImageField(upload_to='images/profile_pics/', null=True, blank=True,default=None)
     ssn = models.CharField(max_length=20,blank=True,unique=True,null=True)
     citizens_ssn = models.CharField(max_length=20,blank=True,unique=True,null=True)
-    questions = models.ManyToManyField(Question,related_name="user",blank=True)
+    # questions = models.ManyToManyField(Question,related_name="user",blank=True)
+    relationship_status = models.CharField(max_length=20,blank=True,null=True)
+    isVaccinated = models.CharField(max_length=20,blank=True,null=True)
+
+
     user_city = models.ForeignKey(City,related_name="city",blank=True,on_delete=models.CASCADE,null=True)
     def __str__(self):
         return self.username
