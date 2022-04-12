@@ -237,17 +237,17 @@ class GetCityList(ListCreateAPIView):
 
 
 
-# # put profile info
+# put profile info
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class UpdateProfileView(UpdateAPIView):
-#     serializer_class = ProfileSerializer
-#     permission_classes = [IsAuthenticated]
+@method_decorator(csrf_exempt, name='dispatch')
+class GetAndEditProfileView(RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
 
-#     def get_object(self):
-#         user_id = self.request.user.id
-#         queryset = User_Model.objects.get(id=user_id)
-#         return queryset
+    def get_object(self):
+        user_id = self.request.user.id
+        queryset = User_Model.objects.get(id=user_id)
+        return queryset
 
 
 

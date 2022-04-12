@@ -241,38 +241,38 @@ class GetUserDataSerializer(serializers.ModelSerializer):
 
 
 
-# class ProfileSerializer(serializers.ModelSerializer):
-#     # degree_name = serializers.SerializerMethodField('get_degree')
+class ProfileSerializer(serializers.ModelSerializer):
+    user_city=GetCitySerializer()
+    # degree_name = serializers.SerializerMethodField('get_degree')
 
-#     # def get_degree(self,obj):
-#     #     print(obj)
-#     #     print(obj.degree)
-#     #     if(obj.degree):
-#     #         return obj.degree.name
-#     #     else:
-#     #         return "None"
+    # def get_degree(self,obj):
+    #     print(obj)
+    #     print(obj.degree)
+    #     if(obj.degree):
+    #         return obj.degree.name
+    #     else:
+    #         return "None"
     
-#     class Meta:
-#         model = User_Model
-#         fields = [
-#             'id',
-#             'first_name',
-#             'last_name',
-#             'gender',
-#             'birthdate',
-#             'degree',
-#             'university',
-#             'profile_pic',
-#             'is_hidden',
-#             # 'degree_name'
-#         ]
+    class Meta:
+        model = User_Model
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'gender',
+            'birthdate',
+            'ssn',
+            'citizens_ssn',
+            'user_city',
+            'profile_pic',
+        ]
 
 
-#     def validate(self, data):
-#         birthdate = data.get('birthdate')
-#         if birthdate != None:
-#             today = date.today()
-#             age = (today - birthdate).days / 365
-#             if age < 10:
-#                 raise serializers.ValidationError('You must be at least 10 years old')
-#         return data
+    # def validate(self, data):
+    #     birthdate = data.get('birthdate')
+    #     if birthdate != None:
+    #         today = date.today()
+    #         age = (today - birthdate).days / 365
+    #         if age < 10:
+    #             raise serializers.ValidationError('You must be at least 10 years old')
+    #     return data
