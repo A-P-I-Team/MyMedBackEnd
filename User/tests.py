@@ -15,7 +15,8 @@ class NotLoggedInAccountTest(TestCase):
         self.city=City.objects.create(city_name="Tehran")
 
 
-    def test_api_register(self):
+    
+    def test_api_register_and_login(self):
         url = reverse("User:register")
 
         data =  {"username" : "test_user@test.com", "password" : "Ab654321", "first_name":"testname","last_name":"test_last_name","relationship_status":"inrel","isVaccinated":"yes","user_city":"1"}
@@ -25,6 +26,11 @@ class NotLoggedInAccountTest(TestCase):
         data = {"username" : "test_user@test.com", "password" : "12565656", "first_name":"testname","last_name":"test_last_name","relationship_status":"inrel","isVaccinated":"yes","user_city":"1"}
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        url = reverse("User:login")
+        data =  {"username" : "test_user@test.com", "password" : "Ab654321"}
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
     def test_api_reset_password(self):
@@ -42,55 +48,56 @@ class NotLoggedInAccountTest(TestCase):
 
 
 
+    def test_api_get_city(self):
+        url = reverse("User:cities")
+        response = self.client.get(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
+    def test_api_get_city(self):
+        url = reverse("User:send_register_email")
+        data =  {"name" : "Mahdi", "email" : "test_email@test.com"}
+        response = self.client.post(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
+
+
+
 class LoggedInAccountTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(username= "test_email@test.com", password= "Ab654321")
         self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
-
-
-    # def test_api_get_profile(self):        
-    #     response = self.client.get(
-    #         reverse("User:profile", kwargs={"pk": self.user.id}), format="json")
-
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
-    # def test_api_update_profile(self):
-    #     url = reverse("account:settings_profile")
-
-    #     data = {"birthdate" : "2000-04-04"}
-    #     response = self.client.patch(url, data, format="json")
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(response.data["birthdate"], data["birthdate"])
-
-    #     data = {"birthdate" : f"{datetime.date.today}"}
-    #     response = self.client.patch(url, data, format="json")
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-
+        
     def test_api_change_password(self):
+        self.client.force_authenticate(user=self.user)
         url = reverse("User:change_password")
 
         data =  {"new_password1" : "Ab", "new_password2" : "654321", "old_password" : "Ab654321"}
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    
 
-        # data =  {"new_password1" : "ABcd1234", "new_password2" : "ABcd1234", "old_password" : f"{self.user.password}"}
-        # response = self.client.put(url, data, format="json")
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_api_get_user(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("User:user")
+        response = self.client.get(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        
-    # def test_api_settings_delete(self):
-    #     url = reverse("account:settings_delete")
-    #     response = self.client.delete(url)
 
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    #     response = self.client.get(
-    #         reverse("account:profile", kwargs={"pk": self.user.id}), format="json")
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_api_get_city(self):
+        url = reverse("User:send_reset_password_email")
+        data =  {"email" : "test_email@test.com"}
+        response = self.client.post(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
+
 
 
