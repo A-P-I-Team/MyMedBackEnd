@@ -56,9 +56,8 @@ class NotLoggedInAccountTest(TestCase):
 
 
     def test_api_get_city(self):
-        url = reverse("User:send_register_email")
-        data =  {"name" : "Mahdi", "email" : "test_email@test.com"}
-        response = self.client.post(url,format="json")
+        url = reverse("User:cities")
+        response = self.client.get(url,format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -90,10 +89,10 @@ class LoggedInAccountTest(TestCase):
 
 
 
-    def test_api_get_city(self):
+    def test_api_send_reset_password_email(self):
         url = reverse("User:send_reset_password_email")
         data =  {"email" : "test_email@test.com"}
-        response = self.client.post(url,format="json")
+        response = self.client.post(url,data,format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
