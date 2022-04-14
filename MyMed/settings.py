@@ -54,6 +54,8 @@ INSTALLED_APPS = [
         #swagger
         'drf_yasg',
 
+        'django_nose',
+
 
     #User app
     'User.apps.UserConfig',
@@ -202,3 +204,10 @@ SWAGGER_SETTINGS = {
 
 
 AUTH_USER_MODEL="User.User"
+
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=User',
+]
