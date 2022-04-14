@@ -9,6 +9,8 @@ djangorestframework = "*"
 drf-yasg = "*"
 pillow = "*"
 python-decouple = "*"
+django-nose = "*"
+coverage = "*"
 
 [dev-packages]
 

@@ -219,24 +219,6 @@ class GetCityList(ListCreateAPIView):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # put profile info
 
 @method_decorator(csrf_exempt, name='dispatch')
