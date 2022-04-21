@@ -211,3 +211,7 @@ NOSE_ARGS = [
     '--with-coverage',
     '--cover-package=User',
 ]
+
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
