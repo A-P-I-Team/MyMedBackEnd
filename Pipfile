@@ -11,6 +11,9 @@ pillow = "*"
 python-decouple = "*"
 django-nose = "*"
 coverage = "*"
+celery = "*"
+flower = "*"
+django-redis = "*"
 
 [dev-packages]
 
