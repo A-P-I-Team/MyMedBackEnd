@@ -1,0 +1,13 @@
+import os
+os.environ.get()
+
+
+
+'ENGINE':'django.db.backends.mysql'
+
+
+
+
+
+
+
