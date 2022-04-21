@@ -39,9 +39,10 @@ CMD pip install -r requirements.txt && \
     python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --noinput && \
     python3 manage.py createsuperuser --user admin --email admin@admin.com --noinput; \
-    celery -A MyMed worker --loglevel=INFO --detach &&\
-    sleep 10 && \
-    celery -A MyMed flower --loglevel=INFO --detach &&\
-    sleep 10 && \
-    gunicorn -b 0.0.0.0:8000 MyMed.wsgi
+    celery -A MyMed worker --loglevel=INFO --detach && \
+    sleep 2 && \
+    gunicorn -b 0.0.0.0:8000 MyMed.wsgi --daemon && \
+    sleep 2 && \
+    celery -A MyMed flower --loglevel=INFO --detach
+    
 

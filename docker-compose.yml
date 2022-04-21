@@ -5,8 +5,8 @@ services:
     build: ./app
     container_name: 'app'
     restart: 'always'
-    # port:
-    #   -"8000:8000"
+    ports:
+      - "5555:5555"
     expose:
       - '8000'
 
