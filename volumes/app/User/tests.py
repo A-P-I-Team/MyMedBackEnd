@@ -5,9 +5,9 @@ from django.urls import reverse
 from User.models import User,City
 import datetime
 
-
-
 # Define this after the ModelTestCase
+
+
 class NotLoggedInAccountTest(TestCase):
 
     def setUp(self):
@@ -61,10 +61,6 @@ class NotLoggedInAccountTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-
-
-
-
 class LoggedInAccountTest(TestCase):
 
     def setUp(self):
@@ -96,7 +92,71 @@ class LoggedInAccountTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class NotLoggedInProfileAccountTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse("User:profile", kwargs={"pk": 1})
+
+    def test_api_unauthorized_get_profile(self):
+        response = self.client.get(path=self.url, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_api_unauthorized_put_profile(self):
+        data = {
+            "first_name": "John", "last_name": "Warner",
+            "gender": "M", "birthdate": "2020-01-01",
+            "ssn": "1234567890", "citizens_ssn": "12",
+            "user_city": {
+                "city_name": "NewYork"
+            }
+        }
+
+        response = self.client.patch(path=self.url, data=data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_api_unauthorized_patch_profile(self):
+        data = {
+            "first_name": "John", "last_name": "Warner",
+            "gender": "M", "birthdate": "2020-01-01"
+        }
+        response = self.client.patch(path=self.url, data=data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+class LoggedInProfileAccountTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="testuser@domain.com", password="ILoveDjango")
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("User:profile", kwargs={"pk": self.user.id})
+        
+    def test_api_authorized_get_profile(self):
+        response = self.client.get(path=self.url, format="json")
 
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_api_authorized_put_profile(self):
+        data = {
+            "first_name": "John", "last_name": "Warner",
+            "gender": "M", "birthdate": "2020-01-01",
+            "ssn": "1234567890", "citizens_ssn": "12",
+            "user_city": {
+                "city_name": "NewYork"
+            }
+        }
+
+        response = self.client.patch(path=self.url, data=data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_api_authorized_patch_profile(self):
+        data = {
+            "first_name": "John", "last_name": "Warner",
+            "gender": "M", "birthdate": "2020-01-01"
+        }
+        response = self.client.patch(path=self.url, data=data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
