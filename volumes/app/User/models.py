@@ -30,7 +30,7 @@ class User(AbstractUser):
     )
     password = models.CharField(
         blank=False,
-        max_length=30,
+        max_length=500,
         validators=[RegexValidator(regex="^(?=.*[A-Z])",message='Password must contain at least one uppercase letter.'),
             RegexValidator(regex="^(?=.*[0-9])",message='Password must contain at least one number.'),
             RegexValidator(regex="^(?=.{8,})",message='Password must be eight characters or longer.')]

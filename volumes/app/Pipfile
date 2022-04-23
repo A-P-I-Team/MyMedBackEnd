@@ -14,6 +14,7 @@ coverage = "*"
 celery = "*"
 flower = "*"
 django-redis = "*"
+mysqlclient = "*"
 
 [dev-packages]
 

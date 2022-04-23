@@ -8,8 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
        username = input("username: ")
        password = input("password: ")
-       email = input("email: ")
        ssn = input("ssn: ")
-       User_Model.objects.create(username=username,password=password,email=email,ssn=ssn)
+       User_Model.objects.create(username=username,password=password,ssn=ssn)
 
        

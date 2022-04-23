@@ -34,6 +34,8 @@ SECRET_KEY = config('SECRET_KEY',default='a5ds16sa1f5as1d51a5sf135as1d5a1sf5a1sd
 DEBUG = True
 
 ALLOWED_HOSTS = ['mymed.pythonanywhere.com','localhost','app']
+CSRF_TRUSTED_ORIGINS=['http://localhost','http://mymed.pythonanywhere.com']
+# CSRF_COOKIE_SECURE=False
 
 
 # Application definition
@@ -96,10 +98,19 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('MARIADB_DATABASE'),
+        'USER': os.environ.get('MARIADB_USER'),
+        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+        'HOST': os.environ.get('MARIADB_HOST'),
     }
 }
 
@@ -215,3 +226,7 @@ NOSE_ARGS = [
 
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+
+
+
