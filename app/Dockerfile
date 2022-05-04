@@ -38,7 +38,7 @@ CMD pip install -r requirements.txt && \
     python3 manage.py makemigrations --noinput && \
     python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --noinput && \
-    echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin@admin.com', password = 'Ab654321')" | python manage.py shell && \
+    if echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin@admin.com', password = 'Ab654321')" | python manage.py shell >/dev/null 2>&1 ; then echo "superuser created"; else echo "super user existed" ; fi && \
     celery -A MyMed worker --loglevel=INFO --detach && \
     sleep 2 && \
     gunicorn -b 0.0.0.0:8000 MyMed.wsgi --daemon && \

@@ -61,6 +61,8 @@ INSTALLED_APPS = [
 
     #User app
     'User.apps.UserConfig',
+    #Doc And Patient app
+    'DocAndPatient.apps.DocandpatientConfig',
 
 ]
 
