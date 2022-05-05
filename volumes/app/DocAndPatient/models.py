@@ -140,6 +140,8 @@ class Prescription(models.Model):
 class PrescriptionMedicines(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT, related_name='prescriptions')
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name='medicines')
-    unit_price = models.PositiveIntegerField()
-    count = models.PositiveSmallIntegerField()
+    dosage = models.PositiveSmallIntegerField()
+    weeks = models.PositiveSmallIntegerField()
+    # مثلاً: هر ۸ ساعت یک عدد
+    description = models.CharField(max_length=255, null=True, blank=True)
 
