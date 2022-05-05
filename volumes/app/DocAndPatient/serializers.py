@@ -13,6 +13,7 @@ class SimpleDoctorSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'degree', 'field']
 
 
+
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -54,3 +55,10 @@ class GetPrescriptionSerializer(serializers.ModelSerializer):
         model = Prescription
         fields = ['doctor', 'patient', 'description', 'date_time', 'medicines']
 
+#_______________________________________________________________________________________
+
+
+class ListDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['first_name', 'last_name', 'profile_pic', 'field']

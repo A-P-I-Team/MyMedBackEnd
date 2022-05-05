@@ -128,8 +128,8 @@ class Medicine(models.Model):
 
 
 class Prescription(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptions')
-    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptions')
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoc')
+    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofpatient')
     description = models.CharField(max_length=255)
     date_time = models.DateTimeField(auto_now_add=True)
 
