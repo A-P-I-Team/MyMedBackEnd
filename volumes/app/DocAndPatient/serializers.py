@@ -7,8 +7,16 @@ class DoctorSerializer(serializers.ModelSerializer):
     pass
 
 
+class SimpleDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['first_name', 'last_name', 'degree', 'field']
+
+
 class PatientSerializer(serializers.ModelSerializer):
-    pass
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'gender', 'birthdate']
 
 
 class MedicineSerializer(serializers.ModelSerializer):
@@ -38,7 +46,7 @@ class GetPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
 
 class GetPrescriptionSerializer(serializers.ModelSerializer):
-    doctor = DoctorSerializer(read_only=True)
+    doctor = SimpleDoctorSerializer(read_only=True)
     patient = PatientSerializer(read_only=True)
     medicines = GetPrescriptionMedicinesSerializer(many=True, read_only=True)
 
