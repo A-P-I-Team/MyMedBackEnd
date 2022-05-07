@@ -56,8 +56,8 @@ class Doctor(User):
     about = models.TextField(null=True, blank=True)
     hours_of_work = models.CharField(max_length=200, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')])
-    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')])
+    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
+    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 

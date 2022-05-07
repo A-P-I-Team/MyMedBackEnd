@@ -33,6 +33,7 @@ RUN pip install -U pip setuptools wheel ruamel.yaml.clib==0.2.6
 RUN apk del gcc python3-dev musl-dev
 
 # while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 1 ; done
+
 CMD pip install -r requirements.txt && \
     sleep 60 && \
     python3 manage.py makemigrations --noinput && \
