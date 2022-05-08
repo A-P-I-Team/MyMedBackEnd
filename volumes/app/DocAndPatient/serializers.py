@@ -62,3 +62,51 @@ class ListDoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = ['first_name', 'last_name', 'profile_pic', 'field']
+
+
+class FullDoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = (
+            'id',
+            'username',
+            'password',
+            'first_name',
+            'last_name',
+            'ssn',
+            'citizens_ssn',
+            'gender',
+            'birthdate',
+            'profile_pic',
+            'user_city',
+            'relationship_status',
+            'isVaccinated',
+            'msn',
+            'degree',
+            'field',
+            'experience',
+            'about',
+            'hours_of_work',
+            'address',
+            'phone',
+            'officeno',
+            'latitude',
+            'longitude',
+
+        )
+        extra_kwargs = {
+            'gender': {'required': False},
+            'birthdate': {'required': False},
+            'profile_pic': {'required': False},
+            'msn': {'required': False},
+            'degree': {'required': False},
+            'field': {'required': False},
+            'experience': {'required': False},
+            'about': {'required': False},
+            'hours_of_work': {'required': False},
+            'address': {'required': False},
+            'phone': {'required': False},
+            'officeno': {'required': False},
+            'latitude': {'required': False},
+            'longitude': {'required': False},
+        }

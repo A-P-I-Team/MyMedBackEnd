@@ -6,6 +6,7 @@ from .views import *
 app_name='DocAndPatient'
 
 urlpatterns = [
-    path('doctors/', User_Doctors_List.as_view(), name='User_Doctors_List'),
+    path('my_doctors/', User_Doctors_List.as_view(), name='User_Doctors_List'),
+    path('doctors/', ListCreateDoctor.as_view(), name='ListCreateDoctor'),
 
 ]
