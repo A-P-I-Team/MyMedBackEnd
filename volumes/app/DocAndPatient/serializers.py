@@ -110,3 +110,39 @@ class FullDoctorSerializer(serializers.ModelSerializer):
             'latitude': {'required': False},
             'longitude': {'required': False},
         }
+
+
+
+class RetriveDoctorSerializer(serializers.ModelSerializer):
+    prescription_date = serializers.SerializerMethodField('get_prescription_date')
+    prescriptions_num = serializers.SerializerMethodField('get_prescriptions_num')
+    medicines_num = serializers.SerializerMethodField('get_medicines_num')
+    def get_prescription_date(self, doctor):
+        return self.context.get("prescription_date")
+    def get_prescriptions_num(self, doctor):
+        return self.context.get("prescriptions_num")
+    def get_medicines_num(self, doctor):
+        return self.context.get("medicines_num")
+    class Meta:
+        model = Doctor
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'profile_pic',
+            'msn',
+            'degree',
+            'field',
+            'experience',
+            'about',
+            'hours_of_work',
+            'address',
+            'phone',
+            'officeno',
+            'latitude',
+            'longitude',
+            'prescription_date',
+            'prescriptions_num',
+            'medicines_num',
+
+        )
