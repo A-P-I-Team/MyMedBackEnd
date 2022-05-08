@@ -54,7 +54,7 @@ class Doctor(User):
     field = models.CharField(max_length=3, choices=FIELD_CHOICES, null=True, blank=True)
     experience = models.IntegerField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
-    hours_of_work = models.CharField(max_length=200, null=True, blank=True)
+    hours_of_work = models.CharField(max_length=100, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
     officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
@@ -130,7 +130,7 @@ class Medicine(models.Model):
 class Prescription(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoc')
     patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofpatient')
-    description = models.CharField(max_length=255)
+    description = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -143,5 +143,5 @@ class PrescriptionMedicines(models.Model):
     dosage = models.PositiveSmallIntegerField()
     weeks = models.PositiveSmallIntegerField()
     # مثلاً: هر ۸ ساعت یک عدد
-    description = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
 
