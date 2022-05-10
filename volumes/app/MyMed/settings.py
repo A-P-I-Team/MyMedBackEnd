@@ -51,18 +51,18 @@ INSTALLED_APPS = [
     #auth token
     'rest_framework.authtoken',
 
-
     #THIRD_PARTY_LIBS:
         #swagger
         'drf_yasg',
-
         'django_nose',
 
+        #django-filter
+        'django_filters',
 
     #User app
     'User.apps.UserConfig',
     #Doc And Patient app
-    'DocAndPatient.apps.DocandpatientConfig',
+    'DocAndPatient.apps.DoctorAndPatientConfig',
 
 ]
 
