@@ -1,4 +1,5 @@
-from django.conf import settings
+from enum import unique
+
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -49,6 +50,7 @@ class Doctor(User):
         (FIELD_PATHOLOGY, 'Pathology'),
     ]
 
+    role = models.CharField(max_length=1, default='D', Choices=[('D', 'Doctor')])
     msn = models.CharField(unique=True, max_length=10, validators=[RegexValidator(regex='^[0-9]{10}$')], null=True, blank=True)
     degree = models.CharField(max_length=2, choices=DEGREE_CHOICES, null=True, blank=True)
     field = models.CharField(max_length=3, choices=FIELD_CHOICES, null=True, blank=True)
@@ -56,8 +58,8 @@ class Doctor(User):
     about = models.TextField(null=True, blank=True)
     hours_of_work = models.CharField(max_length=100, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
-    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')],null=True, blank=True)
+    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True, blank=True)
+    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
@@ -124,11 +126,11 @@ class Medicine(models.Model):
 
     def __str__(self):
         # return f'Manufacturer:{self.manufacturer}, Type:{self.type}, {self.name}'
-        return f'Type:{self.type}, {self.name}'
+        return f'{self.name}'
 
 
 class Prescription(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoc')
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoctor')
     patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofpatient')
     description = models.TextField()
     date_time = models.DateTimeField(auto_now_add=True)
@@ -138,10 +140,25 @@ class Prescription(models.Model):
 
 
 class PrescriptionMedicines(models.Model):
+    FRACTION_4Q = '1'
+    FRACTION_3Q = '3/4'
+    FRACTION_2Q = '1/2'
+    FRACTION_1Q = '1/4'
+
+    FRACTION_CHOICES = [
+        (FRACTION_1Q, '1 Quarter'),
+        (FRACTION_2Q, '2 Quarter'),
+        (FRACTION_3Q, '3 Quarter'),
+        (FRACTION_4Q, '4 Quarter')
+    ]
+
     medicine = models.ForeignKey(Medicine, on_delete=models.PROTECT, related_name='prescriptions')
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, related_name='medicines')
     dosage = models.PositiveSmallIntegerField()
-    weeks = models.PositiveSmallIntegerField()
+    fraction = models.CharField(max_length=3, default='1', choices=FRACTION_CHOICES)
+    days = models.PositiveSmallIntegerField()
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
 
+    class Meta:
+        unique_together = ('medicine', 'prescription')
