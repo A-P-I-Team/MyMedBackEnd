@@ -1,61 +1,103 @@
+from datetime import datetime, timedelta
 from rest_framework import serializers
 from DocAndPatient.models import *
 from User.models import User
 
 
-class DoctorSerializer(serializers.ModelSerializer):
-    pass
-
-
 class SimpleDoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['first_name', 'last_name', 'degree', 'field']
+        fields = ['id', 'first_name', 'last_name', 'profile_pic', 'degree', 'field']
 
 
-
-class PatientSerializer(serializers.ModelSerializer):
+class SimplePatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'gender', 'birthdate']
+        fields = ['id', 'first_name', 'last_name', 'gender', 'birthdate']
 
 
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
-        fields = ['name', 'type']
+        fields = ['id', 'name', 'type']
 
 
 class PrescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prescription
-        fields = ['doctor', 'patient', 'description', 'date_time']
+        fields = ['id', 'doctor', 'patient', 'description', 'date_time']
 
 
 class PrescriptionMedicinesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrescriptionMedicines
-        fields = ['medicine', 'prescription', 'unit_price', 'count']
+        fields = ['id', 'medicine', 'prescription', 'dosage', 'fraction', 'days', 'description']
 
 
-class GetPrescriptionMedicinesSerializer(serializers.ModelSerializer):
-    medicine = MedicineSerializer(read_only=True)
+class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['medicine', 'unit_price', 'count']
+        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days']
 
 
-class GetPrescriptionSerializer(serializers.ModelSerializer):
+class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
+    prescription__doctor = SimpleDoctorSerializer()
+
+    elapsed = serializers.SerializerMethodField()
+    remaining = serializers.SerializerMethodField()
+    progress = serializers.SerializerMethodField()
+
+    def get_elapsed(self, pm: PrescriptionMedicines):
+        # TODO: Check Formula Correctness: ElapsedTime
+        return (datetime.now() - pm.prescription.date_time).days
+
+    def get_remaining(self, pm: PrescriptionMedicines):
+        # TODO: Check Formula Correctness: RemainingTime
+        return (pm.prescription.date_time + timedelta(days=pm.days) - datetime.now()).days
+
+    def get_progress(self, pm: PrescriptionMedicines):
+        # TODO: Check Formula Correctness: ProgressTime
+        return (datetime.now() - pm.prescription.date_time).days // pm.days
+
+    class Meta:
+        model = PrescriptionMedicines
+        fields = ['medicine', 'dosage', 'fraction', 'days', 'elapsed', 'remaining', 'progress', 'description', 'prescription__doctor']
+
+
+class RetrievePrescriptionSerializer(serializers.ModelSerializer):
     doctor = SimpleDoctorSerializer(read_only=True)
-    patient = PatientSerializer(read_only=True)
-    medicines = GetPrescriptionMedicinesSerializer(many=True, read_only=True)
+    patient = SimplePatientSerializer(read_only=True)
+    medicines = RetrievePrescriptionMedicinesSerializer(many=True, read_only=True)
 
     class Meta:
         model = Prescription
-        fields = ['doctor', 'patient', 'description', 'date_time', 'medicines']
+        fields = ['id', 'doctor', 'patient', 'description', 'date_time', 'medicines']
 
-#_______________________________________________________________________________________
+
+class ListPrescriptionsFilteredByDoctorPatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prescription
+        fields = ['id', 'date_time', 'medicines_count']
+
+    medicines_count = serializers.IntegerField(read_only=True)
+
+
+class ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = PrescriptionMedicines
+        fields = ['id', 'medicine', 'dosage', 'fraction', 'days']
+
+
+# TODO: POST Prescription & Its Medicines In ONE NESTED JSON & ONE STEP
+# class POSTPrescriptionSerializer(serializers.Serializer):
+#     pass
+
+# _______________________________________________________________________________________
 
 
 class ListDoctorSerializer(serializers.ModelSerializer):
@@ -112,17 +154,20 @@ class FullDoctorSerializer(serializers.ModelSerializer):
         }
 
 
-
 class RetriveDoctorSerializer(serializers.ModelSerializer):
     prescription_date = serializers.SerializerMethodField('get_prescription_date')
     prescriptions_num = serializers.SerializerMethodField('get_prescriptions_num')
     medicines_num = serializers.SerializerMethodField('get_medicines_num')
+
     def get_prescription_date(self, doctor):
         return self.context.get("prescription_date")
+
     def get_prescriptions_num(self, doctor):
         return self.context.get("prescriptions_num")
+
     def get_medicines_num(self, doctor):
         return self.context.get("medicines_num")
+
     class Meta:
         model = Doctor
         fields = (
