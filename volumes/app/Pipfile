@@ -15,6 +15,7 @@ celery = "*"
 flower = "*"
 django-redis = "*"
 mysqlclient = "*"
+django-filter = "*"
 
 [dev-packages]
 
