@@ -50,7 +50,7 @@ class Doctor(User):
         (FIELD_PATHOLOGY, 'Pathology'),
     ]
 
-    role = models.CharField(max_length=1, default='D', choices=[('D', 'Doctor')])
+    # role = models.CharField(max_length=1, default='D', choices=[('D', 'Doctor')])
     msn = models.CharField(unique=True, max_length=10, validators=[RegexValidator(regex='^[0-9]{10}$')], null=True, blank=True)
     degree = models.CharField(max_length=2, choices=DEGREE_CHOICES, null=True, blank=True)
     field = models.CharField(max_length=3, choices=FIELD_CHOICES, null=True, blank=True)
