@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from rest_framework import serializers
 from DocAndPatient.models import *
 from User.models import User
@@ -44,7 +44,7 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
 class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
-    prescription__doctor = SimpleDoctorSerializer()
+    doctor = SimpleDoctorSerializer(source='prescription.doctor')
 
     elapsed = serializers.SerializerMethodField()
     remaining = serializers.SerializerMethodField()
@@ -52,19 +52,19 @@ class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
     def get_elapsed(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: ElapsedTime
-        return (datetime.now() - pm.prescription.date_time).days
+        return (datetime.now(timezone.utc) - pm.prescription.date_time).days
 
     def get_remaining(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: RemainingTime
-        return (pm.prescription.date_time + timedelta(days=pm.days) - datetime.now()).days
+        return (pm.prescription.date_time + timedelta(days=pm.days) - datetime.now(timezone.utc)).days
 
     def get_progress(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: ProgressTime
-        return (datetime.now() - pm.prescription.date_time).days // pm.days
+        return round((datetime.now(timezone.utc) - pm.prescription.date_time).days / pm.days, 4) * 100
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['medicine', 'dosage', 'fraction', 'days', 'elapsed', 'remaining', 'progress', 'description', 'prescription__doctor']
+        fields = ['medicine', 'dosage', 'fraction', 'days', 'elapsed', 'remaining', 'progress', 'description', 'doctor']
 
 
 class RetrievePrescriptionSerializer(serializers.ModelSerializer):
@@ -78,11 +78,11 @@ class RetrievePrescriptionSerializer(serializers.ModelSerializer):
 
 
 class ListPrescriptionsFilteredByDoctorPatientSerializer(serializers.ModelSerializer):
+    medicines_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Prescription
         fields = ['id', 'date_time', 'medicines_count']
-
-    medicines_count = serializers.IntegerField(read_only=True)
 
 
 class ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer(serializers.ModelSerializer):
@@ -134,7 +134,7 @@ class FullDoctorSerializer(serializers.ModelSerializer):
             'officeno',
             'latitude',
             'longitude',
-
+            'role',
         )
         extra_kwargs = {
             'gender': {'required': False},
