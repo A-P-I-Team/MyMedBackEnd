@@ -134,7 +134,6 @@ class FullDoctorSerializer(serializers.ModelSerializer):
             'officeno',
             'latitude',
             'longitude',
-            'role',
         )
         extra_kwargs = {
             'gender': {'required': False},
