@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import *
@@ -75,19 +76,29 @@ class PrescriptionViewSet(ModelViewSet):
     filterset_fields = ['doctor_id', 'patient_id']
     permission_classes = [IsAuthenticated, IsDoctorOrReadOnly]
 
+    # def get_queryset(self):
+    #     if self.request.user.role == 'D':
+    #         queryset = Prescription.objects.prefetch_related('medicines').filter(doctor=self.request.user.id)
+    #         if self.request.query_params.get('patient_id', None):
+    #             return queryset.annotate(medicines_count=Count('medicines'))
+    #         return queryset
+    #     elif self.request.user.role == 'P':
+    #         queryset = Prescription.objects.prefetch_related('medicines').filter(patient=self.request.user.id)
+    #         if self.request.query_params.get('doctor_id', None):
+    #             return queryset.annotate(medicines_count=Count('medicines'))
+    #         return queryset
+    #     elif self.request.user.is_staff:
+    #         return Prescription.objects.prefetch_related('medicines').all()
+
     def get_queryset(self):
-        if self.request.user.role == 'D':
-            queryset = Prescription.objects.prefetch_related('medicines').filter(doctor=self.request.user.id)
-            if self.request.query_params.get('patient_id', None):
-                return queryset.annotate(medicines_count=Count('medicines'))
-            return queryset
-        elif self.request.user.role == 'P':
-            queryset = Prescription.objects.prefetch_related('medicines').filter(patient=self.request.user.id)
-            if self.request.query_params.get('doctor_id', None):
-                return queryset.annotate(medicines_count=Count('medicines'))
-            return queryset
-        elif self.request.user.is_staff:
-            return Prescription.objects.prefetch_related('medicines').all()
+        if self.request.user.is_staff:
+            queryset = Prescription.objects.prefetch_related('medicines').all()
+        queryset = Prescription.objects.prefetch_related('medicines').filter(
+            Q(patient=self.request.user.id) | Q(doctor=self.request.user.id)
+        )
+        if self.request.query_params.get('doctor_id', None):
+            return queryset.annotate(medicines_count=Count('medicines'))
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list' and (self.request.query_params.get('doctor_id', None) or self.request.query_params.get('patient_id', None)):
@@ -95,7 +106,8 @@ class PrescriptionViewSet(ModelViewSet):
         elif self.action == 'retrieve':
             return RetrievePrescriptionSerializer
 
-        return PrescriptionSerializer(many=isinstance(self.request.data, list))
+        return PrescriptionSerializer
+        # return PrescriptionSerializer(many=isinstance(self.request.data, list))
 
 
 class PrescriptionMedicinesViewSet(ModelViewSet):
@@ -103,13 +115,21 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
     filterset_fields = ['prescription__doctor_id', 'prescription__patient_id']
     permission_classes = [IsAuthenticated, IsDoctorOrReadOnly]
 
+    # def get_queryset(self):
+    #     if self.request.user.role == 'D':
+    #         return PrescriptionMedicines.objects.select_related('prescription').filter(prescription__doctor=self.request.user.id)
+    #     elif self.request.user.role == 'P':
+    #         return PrescriptionMedicines.objects.select_related('prescription').filter(prescription__patient=self.request.user.id)
+    #     elif self.request.user.is_staff:
+    #         return PrescriptionMedicines.objects.select_related('prescription').all()
+
     def get_queryset(self):
-        if self.request.user.role == 'D':
-            return PrescriptionMedicines.objects.select_related('prescription').filter(prescription__doctor=self.request.user.id)
-        elif self.request.user.role == 'P':
-            return PrescriptionMedicines.objects.select_related('prescription').filter(prescription__patient=self.request.user.id)
-        elif self.request.user.is_staff:
+        if self.request.user.is_staff:
             return PrescriptionMedicines.objects.select_related('prescription').all()
+        queryset = PrescriptionMedicines.objects.select_related('prescription').filter(
+            Q(prescription__patient=self.request.user.id) | Q(prescription__doctor=self.request.user.id)
+        )
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -120,4 +140,5 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
         elif self.action == 'retrieve':
             return RetrievePrescriptionMedicinesSerializer
 
-        return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))
+        return PrescriptionMedicinesSerializer
+        # return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))
