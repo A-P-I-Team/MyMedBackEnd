@@ -93,21 +93,30 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    # MariaDB
+DATABASES = 
+
+
+{
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('MARIADB_DATABASE'),
+        'USER': os.environ.get('MARIADB_USER'),
+        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+        'HOST': os.environ.get('MARIADB_HOST'),
+    }
+
+
+
+
+
 #     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get('MARIADB_DATABASE'),
-#         'USER': os.environ.get('MARIADB_USER'),
-#         'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
-#         'HOST': os.environ.get('MARIADB_HOST'),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 
-    # SQLite3
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+
+
+
 }
 
 # Password validation

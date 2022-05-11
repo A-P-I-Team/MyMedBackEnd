@@ -160,5 +160,5 @@ class PrescriptionMedicines(models.Model):
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
 
-    class Meta:
-        unique_together = ('medicine', 'prescription')
+    #class Meta:
+        #unique_together = ('medicine', 'prescription')
