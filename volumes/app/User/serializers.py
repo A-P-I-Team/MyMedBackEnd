@@ -43,7 +43,6 @@ class UserSerializer(serializers.ModelSerializer):
             'user_city',
             'relationship_status',
             'isVaccinated',
-
         )
         extra_kwargs = {
             'password': {'write_only': True},

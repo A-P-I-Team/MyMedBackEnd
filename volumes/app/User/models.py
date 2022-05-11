@@ -38,7 +38,7 @@ class User(AbstractUser):
     )
     username = models.EmailField(unique=True, blank=False)
     first_name = models.CharField(max_length=30, null=True, blank=True)
-    # role = models.CharField(max_length=1, default='P', choices=[('P', 'Patient')])
+    # role = models.CharField(max_length=1, default='P', choices=[('P', 'Patient'), ('D', 'Doctor')])
     last_name = models.CharField(max_length=30, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER, null=True, blank=True, default=None)
     birthdate = models.DateField(null=True, blank=True, default=None)
