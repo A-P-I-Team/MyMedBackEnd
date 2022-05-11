@@ -35,7 +35,8 @@ RUN apk del gcc python3-dev musl-dev
 # while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 1 ; done
 
 CMD pip install -r requirements.txt && \
-    while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 1 ; done && \
+#    while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 1 ; done && \
+    sleep 60 && \
     python3 manage.py makemigrations --noinput && \
     python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --noinput && \
