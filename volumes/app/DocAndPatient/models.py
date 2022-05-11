@@ -132,7 +132,7 @@ class Medicine(models.Model):
 class Prescription(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoctor')
     patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofpatient')
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     date_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
