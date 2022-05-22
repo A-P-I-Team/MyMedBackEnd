@@ -45,19 +45,21 @@ INSTALLED_APPS = [
     # auth token
     'rest_framework.authtoken',
 
-    # THIRD_PARTY_LIBS:
-    # swagger
+    # 3rd Party Libraries:
+    # Swagger: API Documentation
     'drf_yasg',
+    # Django Nose: UnitTest
     'django_nose',
-
-    # django-filter
+    # Django Filter
     'django_filters',
+    # Django DB BackUp
+    'dbbackup',
 
+    # User-Defined Apps
     # User app
     'User.apps.UserConfig',
-    # Doc And Patient app
+    # Doctor And Patient app
     'DocAndPatient.apps.DoctorAndPatientConfig',
-
 ]
 
 MIDDLEWARE = [
@@ -94,23 +96,25 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MARIADB_DATABASE'),
-        'USER': os.environ.get('MARIADB_USER'),
-        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
-        'HOST': os.environ.get('MARIADB_HOST'),
-    }
-
+    # MariaDB: Production DB
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': os.environ.get('MARIADB_DATABASE'),
+    #     'USER': os.environ.get('MARIADB_USER'),
+    #     'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+    #     'HOST': os.environ.get('MARIADB_HOST'),
     # }
 
-
+    # SQLite: Development DB
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
-
+# Django DB BackUp Configurations
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': os.path.join(BASE_DIR, 'backup')}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
