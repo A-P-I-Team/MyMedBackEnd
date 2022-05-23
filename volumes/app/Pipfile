@@ -16,6 +16,7 @@ flower = "*"
 django-redis = "*"
 mysqlclient = "*"
 django-filter = "*"
+django-dbbackup = "==4.0.0b0"
 
 [dev-packages]
 
