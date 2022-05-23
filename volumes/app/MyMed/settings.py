@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 
 from decouple import config
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -194,3 +195,9 @@ NOSE_ARGS = [
 ]
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_BEAT_SCHEDULE = {
+    'DB-BackUp': {
+        'task': 'MyMed.tasks.backup',
+        'schedule': crontab(hour=0, minute=0)
+    }
+}
