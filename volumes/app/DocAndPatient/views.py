@@ -5,7 +5,7 @@ from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from .models import Doctor, Medicine, Prescription, PrescriptionMedicines
-from .permissions import IsAdminOrReadOnly, IsDoctorOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsDoctorOrReadOnly, IsPrescriptionOwner
 from .serializers import ListDoctorSerializer, FullDoctorSerializer, RetriveDoctorSerializer, SimpleDoctorSerializer, \
     MedicineSerializer, PrescriptionSerializer, PrescriptionMedicinesSerializer, \
     RetrievePrescriptionSerializer, ListPrescriptionsFilteredByDoctorPatientSerializer, \
@@ -74,7 +74,7 @@ class PrescriptionViewSet(ModelViewSet):
     # TODO: IsPrescriptionOfOwnerDoctor
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['doctor_id', 'patient_id']
-    permission_classes = [IsAuthenticated, IsDoctorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsDoctorOrReadOnly, IsPrescriptionOwner]
 
     # def get_queryset(self):
     #     if self.request.user.role == 'D':
