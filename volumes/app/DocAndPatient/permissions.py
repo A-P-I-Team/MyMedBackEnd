@@ -15,4 +15,8 @@ class IsDoctorOrReadOnly(permissions.BasePermission):
         #     return True
         # return bool(request.user and request.user.role == 'D')
 
+
 # TODO: IsPrescriptionOfOwnerDoctor
+class IsPrescriptionOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.patient == request.user or obj.doctor == request.user
