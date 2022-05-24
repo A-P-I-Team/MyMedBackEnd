@@ -1,12 +1,10 @@
-from enum import unique
-
 from django.core.validators import RegexValidator
 from django.db import models
 
 from User.models import User
+
+
 # Create your models here.
-
-
 class Doctor(User):
     DEGREE_GENERAL = 'GP'
     DEGREE_SPECIAL = 'SP'
@@ -51,15 +49,18 @@ class Doctor(User):
     ]
 
     # role = models.CharField(max_length=1, default='D', choices=[('D', 'Doctor')])
-    msn = models.CharField(unique=True, max_length=10, validators=[RegexValidator(regex='^[0-9]{10}$')], null=True, blank=True)
+    msn = models.CharField(unique=True, max_length=10, validators=[RegexValidator(regex='^[0-9]{10}$')], null=True,
+                           blank=True)
     degree = models.CharField(max_length=2, choices=DEGREE_CHOICES, null=True, blank=True)
     field = models.CharField(max_length=3, choices=FIELD_CHOICES, null=True, blank=True)
     experience = models.IntegerField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     hours_of_work = models.CharField(max_length=100, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True, blank=True)
-    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True, blank=True)
+    phone = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True,
+                             blank=True)
+    officeno = models.CharField(unique=True, max_length=11, validators=[RegexValidator(regex='^[0-9]{11}$')], null=True,
+                                blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
@@ -122,6 +123,7 @@ class Medicine(models.Model):
     ]
     name = models.CharField(max_length=150)
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+
     # manufacturer = models.ForeignKey(MedicineManufacturer, on_delete=models.CASCADE, related_name='medicines')
 
     def __str__(self):
@@ -130,8 +132,10 @@ class Medicine(models.Model):
 
 
 class Prescription(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofdoctor')
-    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptionsofpatient')
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='prescriptionsofdoctor')
+    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name='prescriptionsofpatient')
     description = models.TextField(null=True, blank=True)
     date_time = models.DateTimeField(auto_now_add=True)
 
@@ -160,5 +164,5 @@ class PrescriptionMedicines(models.Model):
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
 
-    #class Meta:
-        #unique_together = ('medicine', 'prescription')
+    # class Meta:
+    #     unique_together = ('medicine', 'prescription')
