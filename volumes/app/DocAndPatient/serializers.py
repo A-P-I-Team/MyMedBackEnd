@@ -152,6 +152,16 @@ class FullDoctorSerializer(serializers.ModelSerializer):
             'longitude': {'required': False},
         }
 
+    def create(self, validated_data):
+            doctor = Doctor.objects.create(
+               **validated_data,role='D'
+            )
+            doctor.save()
+
+            return doctor
+
+    
+
 
 class RetriveDoctorSerializer(serializers.ModelSerializer):
     prescription_date = serializers.SerializerMethodField('get_prescription_date')
