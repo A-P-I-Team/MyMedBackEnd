@@ -1,4 +1,4 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 
 from User.models import User
@@ -161,8 +161,20 @@ class PrescriptionMedicines(models.Model):
     dosage = models.PositiveSmallIntegerField()
     fraction = models.CharField(max_length=3, default='1', choices=FRACTION_CHOICES)
     days = models.PositiveSmallIntegerField()
+    period = models.PositiveSmallIntegerField(validators=[
+        MinValueValidator(1),
+        MaxValueValidator(24)
+    ], default=1)
+    start = models.DateTimeField()
+    notify = models.BooleanField()
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
 
     # class Meta:
     #     unique_together = ('medicine', 'prescription')
+
+
+class Reminder(models.Model):
+    prescription_medicine = models.ForeignKey(PrescriptionMedicines, on_delete=models.CASCADE, related_name='reminders')
+    date_time = models.DateTimeField()
+    status = models.NullBooleanField()
