@@ -165,7 +165,7 @@ class PrescriptionMedicines(models.Model):
         MinValueValidator(1),
         MaxValueValidator(24)
     ], default=1)
-    start = models.DateTimeField()
+    start = models.DateTimeField(null=True, blank=True)
     notify = models.BooleanField()
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
@@ -177,4 +177,4 @@ class PrescriptionMedicines(models.Model):
 class Reminder(models.Model):
     prescription_medicine = models.ForeignKey(PrescriptionMedicines, on_delete=models.CASCADE, related_name='reminders')
     date_time = models.DateTimeField()
-    status = models.NullBooleanField()
+    status = models.NullBooleanField(default=None)

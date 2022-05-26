@@ -34,7 +34,22 @@ class PrescriptionMedicinesSerializer(serializers.ModelSerializer):
         fields = ['id', 'medicine', 'prescription', 'dosage', 'fraction', 'days', 'description']
 
 
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        # fields = ['id', 'prescription_medicine', 'date_time', 'status']
+        fields = ['id', 'date_time', 'status']
+
+
 class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = PrescriptionMedicines
+        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days']
+
+
+class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -153,14 +168,12 @@ class FullDoctorSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-            doctor = Doctor.objects.create(
-               **validated_data,role='D'
-            )
-            doctor.save()
+        doctor = Doctor.objects.create(
+            **validated_data, role='D'
+        )
+        doctor.save()
 
-            return doctor
-
-    
+        return doctor
 
 
 class RetriveDoctorSerializer(serializers.ModelSerializer):
