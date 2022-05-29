@@ -6,7 +6,7 @@ db.sqlite3
 *.log
 *.pot
 __pycache__
-migrations
+
 
 # Backup files # 
 *.bak 
