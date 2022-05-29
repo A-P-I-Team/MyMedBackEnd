@@ -226,6 +226,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User_Model
         fields = [
             'id',
+            'username',
             'first_name',
             'last_name',
             'gender',
