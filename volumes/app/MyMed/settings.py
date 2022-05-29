@@ -195,9 +195,11 @@ NOSE_ARGS = [
 ]
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+
 CELERY_BEAT_SCHEDULE = {
     'DB-BackUp': {
         'task': 'MyMed.tasks.backup',
         'schedule': crontab(hour=0, minute=0)
     }
 }
+
