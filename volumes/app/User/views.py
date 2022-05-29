@@ -22,7 +22,7 @@ from rest_framework import filters
 from rest_framework import parsers
 from rest_framework import renderers
 from rest_framework.authtoken.models import Token
-
+from .tasks import SendEmail
 
 from .serializers import *
 from .permissions import *
@@ -90,16 +90,7 @@ class ChangePasswordView(UpdateAPIView):
 
 
 
-class EmailThread(threading.Thread):
-    def __init__(self, email):
-        self.email = email
-        threading.Thread.__init__(self)
-
-    def run(self):
-        self.email.send()
-
 #send an email when user is registering
-
 @method_decorator(csrf_exempt, name='dispatch')
 class SendRegisterEmail(GenericAPIView):
     serializer_class=SendregisterEmailSerializer
@@ -109,15 +100,7 @@ class SendRegisterEmail(GenericAPIView):
         msg="Registration"
         if serializer.is_valid():
             email_body = render_to_string("Email_Templates/email.html",{"message":msg,"randomcode":randomcode,"full_name":serializer.data['name']})
-            email = EmailMessage(
-                'ACTIVATION CODE',
-                email_body,
-                'MyMed',
-                [serializer.data['email']],
-            )
-            email.content_subtype = "html"
-            email.fail_silently = False
-            EmailThread(email).run()
+            SendEmail.delay(email_body,'ACTIVATION CODE','MyMed',[serializer.data['email']])
             return Response({'code':randomcode},status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -139,15 +122,7 @@ class SendResetPasswordEmail(GenericAPIView):
             else:
                 full_name=(get_object_or_404(User_Model, username=serializer.validated_data['email']).username)
             email_body = render_to_string("Email_Templates/email.html",{"message":msg,"randomcode":randomcode,"full_name":full_name})
-            email = EmailMessage(
-                'ACTIVATION CODE',
-                email_body,
-                'MyMed',
-                [serializer.data['email']],
-            )
-            email.content_subtype = "html"
-            email.fail_silently = False
-            EmailThread(email).run()
+            SendEmail.delay(email_body,'ACTIVATION CODE','MyMed',[serializer.data['email']])
             return Response({'code':randomcode},status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

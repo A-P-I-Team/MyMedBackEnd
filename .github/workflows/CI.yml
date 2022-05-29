@@ -30,4 +30,6 @@ jobs:
     - name: Run Tests
       run: |
         cd volumes/app
-        python manage.py test User
+        coverage erase
+        coverage run --branch ./manage.py test
+        coverage report -m

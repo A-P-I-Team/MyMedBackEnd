@@ -33,13 +33,15 @@ RUN pip install -U pip setuptools wheel ruamel.yaml.clib==0.2.6
 RUN apk del gcc python3-dev musl-dev
 
 # while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 1 ; done
+
 CMD pip install -r requirements.txt && \
-    sleep 60 && \
+    while ! python3 manage.py sqlflush > /dev/null 2>&1 ; do sleep 5 ; done && \
     python3 manage.py makemigrations --noinput && \
     python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --noinput && \
-    echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin@admin.com', password = 'Ab654321')" | python manage.py shell && \
+    if echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(username='admin@admin.com', password = 'Ab654321')" | python manage.py shell >/dev/null 2>&1 ; then echo "superuser created"; else echo "super user existed" ; fi && \
     celery -A MyMed worker --loglevel=INFO --detach && \
+    celery -A MyMed beat --detach && \
     sleep 2 && \
     gunicorn -b 0.0.0.0:8000 MyMed.wsgi --daemon && \
     sleep 2 && \
