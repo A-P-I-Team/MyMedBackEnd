@@ -31,14 +31,15 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 class PrescriptionMedicinesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'medicine', 'prescription', 'dosage', 'fraction', 'days', 'description']
+        fields = ['id', 'medicine', 'prescription', 'dosage', 'fraction', 'days', 'description', 'start', 'period', 'notify']
 
 
 class ReminderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reminder
-        # fields = ['id', 'prescription_medicine', 'date_time', 'status']
         fields = ['id', 'date_time', 'status']
+        read_only_fields = ['id', 'date_time']
+        # fields = ['id', 'prescription_medicine', 'date_time', 'status']
 
 
 class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
@@ -51,7 +52,7 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
 class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
-    reminders = ReminderSerializer(read_only=True)
+    reminders = ReminderSerializer(read_only=True, many=True)
 
     class Meta:
         model = PrescriptionMedicines
@@ -70,15 +71,19 @@ class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
     def get_elapsed(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: ElapsedTime
-        return (datetime.now(timezone.utc) - pm.prescription.date_time).days
+        return min((datetime.now(timezone.utc) - pm.start).days, pm.days) if pm.start else 0
 
     def get_remaining(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: RemainingTime
-        return (pm.prescription.date_time + timedelta(days=pm.days) - datetime.now(timezone.utc)).days
+        return max((pm.start + timedelta(days=pm.days) - datetime.now(timezone.utc)).days, 0) if pm.start else 0
 
     def get_progress(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: ProgressTime
-        return round((datetime.now(timezone.utc) - pm.prescription.date_time).days / pm.days, 4) * 100
+        # return round((datetime.now(timezone.utc) - pm.prescription.date_time).days / pm.days, 4) * 100
+        return round(Reminder.objects.filter(
+                prescription_medicine=pm.id,
+                status=True
+            ).count() / (24 * pm.days // pm.period), 2) * 100 if pm.start else 0
 
     def get_count(self, pm: PrescriptionMedicines):
         return 24 * pm.days // pm.period
