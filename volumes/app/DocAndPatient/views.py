@@ -1,15 +1,18 @@
-from django.db.models import Q
+from datetime import datetime, timedelta, timezone
+from django.db.models import Q, F, Value, ExpressionWrapper, Count, Case, When, IntegerField, FloatField, DateTimeField
 from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
 from .models import Doctor, Medicine, Prescription, PrescriptionMedicines
 from .permissions import IsAdminOrReadOnly, IsDoctorOrReadOnly, IsPrescriptionOwner
 from .serializers import ListDoctorSerializer, FullDoctorSerializer, RetriveDoctorSerializer, SimpleDoctorSerializer, \
     MedicineSerializer, PrescriptionSerializer, PrescriptionMedicinesSerializer, \
     RetrievePrescriptionSerializer, ListPrescriptionsFilteredByDoctorPatientSerializer, \
-    ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer
+    ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, \
+    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer
 
 
 # Create your views here.
@@ -142,3 +145,25 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
 
         return PrescriptionMedicinesSerializer
         # return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))
+
+
+class ActivePrescriptionMedicinesAPIView(ListAPIView):
+    # queryset = PrescriptionMedicines.objects.filter(start__isnull=False).annotate(
+    #     finish=ExpressionWrapper(
+    #         F('start') + timedelta(days=1) * F('days'),
+    #         output_field=DateTimeField
+    #     )
+    # ).filter(finish__gte=datetime.now())
+
+    # queryset = PrescriptionMedicines.objects.filter(start__isnull=False)
+
+    def get_queryset(self):
+        queryset = PrescriptionMedicines.objects.filter(start__isnull=False)
+
+        items = []
+        for item in queryset:
+            if item.start + timedelta(days=item.days) > datetime.now(timezone.utc):
+                items.append(item)
+        return items
+
+    serializer_class = ListPrescriptionMedicinesRemindersSerializer
