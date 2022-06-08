@@ -125,7 +125,7 @@ class ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer(serializers.Mo
 class ListDoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['first_name', 'last_name', 'profile_pic', 'field']
+        fields = ['id','first_name', 'last_name', 'profile_pic', 'field']
 
 
 class FullDoctorSerializer(serializers.ModelSerializer):

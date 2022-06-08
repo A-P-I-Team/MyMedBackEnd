@@ -98,19 +98,19 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 
 DATABASES = {
     # MariaDB: Production DB
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MARIADB_DATABASE'),
-        'USER': os.environ.get('MARIADB_USER'),
-        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
-        'HOST': os.environ.get('MARIADB_HOST'),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': os.environ.get('MARIADB_DATABASE'),
+    #     'USER': os.environ.get('MARIADB_USER'),
+    #     'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+    #     'HOST': os.environ.get('MARIADB_HOST'),
+    # }
 
     # SQLite: Development DB
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Django DB BackUp Configurations
@@ -190,14 +190,16 @@ AUTH_USER_MODEL = "User.User"
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = [
-    '--with-coverage',
-    '--cover-package=User',
+    '--cover-erase',
+    '--cover-package=User,DocAndPatient',
 ]
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+
 CELERY_BEAT_SCHEDULE = {
     'DB-BackUp': {
         'task': 'MyMed.tasks.backup',
         'schedule': crontab(hour=0, minute=0)
     }
 }
+

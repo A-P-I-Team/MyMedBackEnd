@@ -4,10 +4,15 @@ from rest_framework import status
 from django.urls import reverse
 from User.models import User,City
 import datetime
+from .models import Medicine
+
 # Create your tests here.
 
 
 class NotLoggedInDoctorsTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.city=City.objects.create(city_name="Tehran")
     def test_api_create_list_doctor(self):
         url = reverse("DocAndPatient:ListCreateDoctor")
 
@@ -21,13 +26,13 @@ class NotLoggedInDoctorsTest(TestCase):
         "ssn": "12125458",
         "gender": "M",
         "birthdate": "2022-05-24",
-        "user_city": 1,
+        "user_city": "1",
         "relationship_status": "string",
         "isVaccinated": "string",
         "msn": "1212545488",
         "degree": "GP",
         "field": "CAR",
-        "experience": 0,
+        "experience": "0",
         "about": "string",
         "hours_of_work": "string",
         "address": "string",
@@ -48,13 +53,13 @@ class NotLoggedInDoctorsTest(TestCase):
         "ssn": "12125458",
         "gender": "M",
         "birthdate": "2022-05-24",
-        "user_city": 1,
+        "user_city": "1",
         "relationship_status": "string",
         "isVaccinated": "string",
         "msn": "1212545488",
         "degree": "GP",
         "field": "CAR",
-        "experience": 0,
+        "experience": "0",
         "about": "string",
         "hours_of_work": "string",
         "address": "string",
@@ -70,6 +75,43 @@ class NotLoggedInDoctorsTest(TestCase):
         url = reverse("DocAndPatient:ListCreateDoctor")
         response = self.client.get(url,format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class MedicinesTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username= "test_email@test.com", password= "Ab654321")
+        self.superuser = User.objects.create_superuser(username= "test_email_superuser@test.com", password= "Ab654321")
+        Medicine.objects.create(name="testmedicine",type="A")
+        self.client = APIClient()
+
+
+
+    def test_get_medicine_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("DocAndPatient:Medicines-list")
+        response = self.client.get(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+    def test_post_medicine_list(self):
+        self.client.force_authenticate(user=self.superuser)
+        url = reverse("DocAndPatient:Medicines-list")
+        data={
+        "name": "testmedicine",
+        "type": "A"
+        }
+        response = self.client.post(url,data,format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+    def test_get_medicine_item(self):   
+        self.client.force_authenticate(user=self.user)
+        url = reverse("DocAndPatient:Medicines-detail",kwargs={'pk':1})
+        response = self.client.get(url,format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
 
 
 
