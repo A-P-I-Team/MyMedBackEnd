@@ -6,7 +6,6 @@ from django.dispatch import receiver
 from DocAndPatient.models import PrescriptionMedicines, Reminder
 
 
-# TODO
 @receiver(pre_save, sender=PrescriptionMedicines)
 def reminders(sender, **kwargs):
     instance: PrescriptionMedicines = kwargs.get('instance')
@@ -22,7 +21,7 @@ def reminders(sender, **kwargs):
                 # Create Reminders
                 for i in range(24 * instance.days // instance.period):
                     Reminder.objects.create(
-                        prescription_medicine=instance.id,
+                        prescription_medicine=instance,
                         date_time=instance.start + timedelta(hours=i * instance.period),
                         status=None
                     )
@@ -60,14 +59,14 @@ def statistic(sender, **kwargs):
         if previous.status != instance.status:
             # True --> False OR True --> None
             if previous.status and (not instance.status or instance.status is None):
-                PrescriptionMedicines.objects.filter(id=instance.prescription_medicine).update(
+                PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
                     takenno=F('takenno') - 1,
                     nottakenno=F('nottakenno') + 1
                 )
 
             # False --> True OR None --> True
             if instance.status and (not previous.status or previous.status is None):
-                PrescriptionMedicines.objects.filter(id=instance.prescription_medicine).update(
+                PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
                     takenno=F('takenno') + 1,
                     nottakenno=F('nottakenno') - 1
                 )
