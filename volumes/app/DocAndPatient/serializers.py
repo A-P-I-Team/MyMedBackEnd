@@ -51,10 +51,12 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
 class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
+    reminders = ReminderSerializer(read_only=True)
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days']
+        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction',
+                  'days', 'start', 'period', 'reminders', 'takenno', 'notify', 'description']
 
 
 class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
@@ -64,6 +66,7 @@ class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
     elapsed = serializers.SerializerMethodField()
     remaining = serializers.SerializerMethodField()
     progress = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
 
     def get_elapsed(self, pm: PrescriptionMedicines):
         # TODO: Check Formula Correctness: ElapsedTime
@@ -77,9 +80,13 @@ class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
         # TODO: Check Formula Correctness: ProgressTime
         return round((datetime.now(timezone.utc) - pm.prescription.date_time).days / pm.days, 4) * 100
 
+    def get_count(self, pm: PrescriptionMedicines):
+        return 24 * pm.days // pm.period
+
     class Meta:
         model = PrescriptionMedicines
-        fields = ['medicine', 'dosage', 'fraction', 'days', 'elapsed', 'remaining', 'progress', 'description', 'doctor']
+        fields = ['medicine', 'dosage', 'fraction', 'days', 'elapsed', 'remaining', 'progress',
+                  'description', 'doctor', 'start', 'period', 'count', 'takenno', 'nottakenno', 'notify']
 
 
 class RetrievePrescriptionSerializer(serializers.ModelSerializer):

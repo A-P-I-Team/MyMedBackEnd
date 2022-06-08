@@ -161,12 +161,12 @@ class PrescriptionMedicines(models.Model):
     dosage = models.PositiveSmallIntegerField()
     fraction = models.CharField(max_length=3, default='1', choices=FRACTION_CHOICES)
     days = models.PositiveSmallIntegerField()
-    period = models.PositiveSmallIntegerField(validators=[
-        MinValueValidator(1),
-        MaxValueValidator(24)
-    ], default=1)
+    period = models.PositiveSmallIntegerField(default=1)
     start = models.DateTimeField(null=True, blank=True)
-    notify = models.BooleanField()
+    takenno = models.PositiveSmallIntegerField(default=0)
+    nottakenno = models.PositiveSmallIntegerField(default=0)
+    # active = models.NullBooleanField(default=None)
+    notify = models.BooleanField(default=False)
     # مثلاً: هر ۸ ساعت یک عدد
     description = models.TextField(null=True, blank=True)
 
@@ -177,4 +177,4 @@ class PrescriptionMedicines(models.Model):
 class Reminder(models.Model):
     prescription_medicine = models.ForeignKey(PrescriptionMedicines, on_delete=models.CASCADE, related_name='reminders')
     date_time = models.DateTimeField()
-    status = models.NullBooleanField(default=None)
+    status = models.BooleanField(null=True, blank=True, default=None)
