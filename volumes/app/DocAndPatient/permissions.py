@@ -8,15 +8,14 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return bool(request.user and request.user.is_staff)
 
 
-class IsDoctorOrReadOnly(permissions.BasePermission):
+class IsDoctorOrAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        return True
-        # if request.method in permissions.SAFE_METHODS:
-        #     return True
-        # return bool(request.user and request.user.role == 'D')
+        # return True
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return bool(request.user and (request.user.role == 'D' or request.user.is_staff))
 
 
-# TODO: IsPrescriptionOfOwnerDoctor
 class IsPrescriptionOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.patient == request.user or obj.doctor == request.user

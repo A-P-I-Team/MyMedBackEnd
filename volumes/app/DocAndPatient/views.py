@@ -1,15 +1,22 @@
-from django.db.models import Q
+from datetime import datetime, timedelta, timezone
+from django.db.models import Q, F, Value, ExpressionWrapper, Count, Case, When, IntegerField, FloatField, DateTimeField
 from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
-from .models import Doctor, Medicine, Prescription, PrescriptionMedicines
-from .permissions import IsAdminOrReadOnly, IsDoctorOrReadOnly, IsPrescriptionOwner
+from .models import Doctor, Medicine, Prescription, PrescriptionMedicines, Reminder
+from .permissions import IsAdminOrReadOnly, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner
 from .serializers import ListDoctorSerializer, FullDoctorSerializer, RetriveDoctorSerializer, SimpleDoctorSerializer, \
     MedicineSerializer, PrescriptionSerializer, PrescriptionMedicinesSerializer, \
     RetrievePrescriptionSerializer, ListPrescriptionsFilteredByDoctorPatientSerializer, \
-    ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer
+    ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, \
+    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer, ReminderSerializer
 
 
 # Create your views here.
@@ -74,7 +81,7 @@ class PrescriptionViewSet(ModelViewSet):
     # TODO: IsPrescriptionOfOwnerDoctor
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['doctor_id', 'patient_id']
-    permission_classes = [IsAuthenticated, IsDoctorOrReadOnly, IsPrescriptionOwner]
+    permission_classes = [IsAuthenticated, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner]
 
     # def get_queryset(self):
     #     if self.request.user.role == 'D':
@@ -92,13 +99,20 @@ class PrescriptionViewSet(ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            queryset = Prescription.objects.prefetch_related('medicines').all()
-        queryset = Prescription.objects.prefetch_related('medicines').filter(
-            Q(patient=self.request.user.id) | Q(doctor=self.request.user.id)
-        )
-        if self.request.query_params.get('doctor_id', None):
-            return queryset.annotate(medicines_count=Count('medicines'))
-        return queryset
+            if self.request.query_params.get('doctor_id', None):
+                return Prescription.objects.prefetch_related('medicines').all().annotate(medicines_count=Count('medicines'))
+
+            return Prescription.objects.prefetch_related('medicines').all()
+
+        else:
+            if self.request.query_params.get('doctor_id', None):
+                return Prescription.objects.prefetch_related('medicines').filter(
+                    Q(patient=self.request.user.id) | Q(doctor=self.request.user.id)
+                ).annotate(medicines_count=Count('medicines'))
+
+            return Prescription.objects.prefetch_related('medicines').filter(
+                Q(patient=self.request.user.id) | Q(doctor=self.request.user.id)
+            )
 
     def get_serializer_class(self):
         if self.action == 'list' and (self.request.query_params.get('doctor_id', None) or self.request.query_params.get('patient_id', None)):
@@ -113,7 +127,7 @@ class PrescriptionViewSet(ModelViewSet):
 class PrescriptionMedicinesViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['prescription__doctor_id', 'prescription__patient_id']
-    permission_classes = [IsAuthenticated, IsDoctorOrReadOnly]
+    permission_classes = [IsAuthenticated, IsDoctorOrAdminOrReadOnly]
 
     # def get_queryset(self):
     #     if self.request.user.role == 'D':
@@ -142,3 +156,55 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
 
         return PrescriptionMedicinesSerializer
         # return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))
+
+
+class ActivePrescriptionMedicinesAPIView(ListAPIView):
+    # def get_queryset(self):
+    #     queryset = PrescriptionMedicines.objects.filter(
+    #             start__isnull=False,
+    #             prescription__patient=self.request.user.id
+    #         ).annotate(sth=timedelta(days=1), output_field=DateTimeField()).annotate(
+    #             finish=ExpressionWrapper(
+    #                 F('start') + F('sth') * F('days'),
+    #                 output_field=DateTimeField()
+    #             )
+    #         ).filter(finish__gte=timezone.now())
+    #
+    #     return queryset
+
+    # queryset = PrescriptionMedicines.objects.filter(start__isnull=False)
+
+    def get_queryset(self):
+        queryset = PrescriptionMedicines.objects.filter(start__isnull=False, prescription__patient=self.request.user.id)
+        items = []
+        for item in queryset:
+            if item.start + timedelta(days=item.days) > datetime.now(timezone.utc):
+                items.append(item)
+        return items
+
+    serializer_class = ListPrescriptionMedicinesRemindersSerializer
+
+
+class ReminderAPIView(RetrieveUpdateAPIView):
+    serializer_class = ReminderSerializer
+
+    def get_queryset(self):
+        return Reminder.objects.filter(prescription_medicine__prescription__patient=self.request.user.id)
+
+    def put(self, request, *args, **kwargs):
+        reminder = get_object_or_404(Reminder, pk=kwargs.get('pk'))
+        if reminder.date_time > timezone.now():
+            return Response(
+                data={'message': 'TIME NOT REACHED', 'remaining': (reminder.date_time - timezone.now()).days},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        partial = kwargs.pop('partial', False)
+        serializer = ReminderSerializer(reminder, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.put(request, *args, **kwargs)
