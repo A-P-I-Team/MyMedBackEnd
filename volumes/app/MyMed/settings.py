@@ -204,10 +204,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'MyMed.tasks.backup',
         'schedule': crontab(hour=0, minute=0)
     },
-    # 'Update_Reminder': {
-    #     'task': '',
-    #     'schedule': crontab(hour="*/2"),
-    # },
+    'Update_Reminder': {
+        'task': 'DocAndPatient.tasks.Set_Reminder_Flase_After_Time',
+        'schedule': crontab(minute="*/30"),
+    },
     'Send_Remined_Emails': {
         'task': 'User.tasks.Send_Reminder_Email',
         'schedule': crontab(minute="*/15"),
