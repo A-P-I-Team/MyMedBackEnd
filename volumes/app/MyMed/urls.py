@@ -38,6 +38,10 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 app_name = 'MyMed'
+
+admin.site.site_header = 'MyMed Admin'
+admin.site.index_title = 'Admin'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
