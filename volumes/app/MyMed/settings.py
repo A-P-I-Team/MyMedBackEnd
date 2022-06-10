@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     # Django DB BackUp
     'dbbackup',
 
+    'django_celery_beat',
+
     # User-Defined Apps
     # User app
     'User.apps.UserConfig',
@@ -152,7 +154,7 @@ REST_FRAMEWORK = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -196,10 +198,20 @@ NOSE_ARGS = [
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 
+CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_BEAT_SCHEDULE = {
     'DB-BackUp': {
         'task': 'MyMed.tasks.backup',
         'schedule': crontab(hour=0, minute=0)
+    },
+    'Update_Reminder': {
+        'task': 'DocAndPatient.tasks.Set_Reminder_Flase_After_Time',
+        'schedule': crontab(minute="*/30"),
+    },
+    'Send_Remined_Emails': {
+        'task': 'User.tasks.Send_Reminder_Email',
+        'schedule': crontab(minute="*/15"),
+
     }
 }
 
