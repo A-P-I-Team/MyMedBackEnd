@@ -11,12 +11,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
 from .models import Doctor, Medicine, Prescription, PrescriptionMedicines, Reminder
-from .permissions import IsAdminOrReadOnly, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner
+from .permissions import IsAdminOrReadOnly, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner, IsPrescriptionMedicineOwnerOrAdmin
 from .serializers import ListDoctorSerializer, FullDoctorSerializer, RetriveDoctorSerializer, SimpleDoctorSerializer, \
     MedicineSerializer, PrescriptionSerializer, PrescriptionMedicinesSerializer, \
     RetrievePrescriptionSerializer, ListPrescriptionsFilteredByDoctorPatientSerializer, \
     ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, \
-    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer, ReminderSerializer
+    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer, \
+    ReminderSerializer, DoctorUpdatePrescriptionMedicinesSerializer, PatientUpdatePrescriptionMedicinesSerializer
 
 
 # Create your views here.
@@ -127,7 +128,7 @@ class PrescriptionViewSet(ModelViewSet):
 class PrescriptionMedicinesViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['prescription__doctor_id', 'prescription__patient_id']
-    permission_classes = [IsAuthenticated, IsDoctorOrAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsPrescriptionMedicineOwnerOrAdmin]
 
     # def get_queryset(self):
     #     if self.request.user.role == 'D':
@@ -153,6 +154,13 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
                 return ListPrescriptionMedicinesSerializer
         elif self.action == 'retrieve':
             return RetrievePrescriptionMedicinesSerializer
+        elif self.action in ['update', 'partial_update']:
+            if self.request.user.is_staff:
+                return PrescriptionMedicinesSerializer
+            if self.request.user.role == 'D':
+                return DoctorUpdatePrescriptionMedicinesSerializer
+            if self.request.user.role == 'P':
+                return PatientUpdatePrescriptionMedicinesSerializer
 
         return PrescriptionMedicinesSerializer
         # return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))

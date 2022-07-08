@@ -19,3 +19,8 @@ class IsDoctorOrAdminOrReadOnly(permissions.BasePermission):
 class IsPrescriptionOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.patient == request.user or obj.doctor == request.user
+
+
+class IsPrescriptionMedicineOwnerOrAdmin(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.prescription.patient == request.user or obj.prescription.doctor == request.user or request.user.is_staff
