@@ -28,8 +28,8 @@ SECRET_KEY = config('SECRET_KEY', default='a5ds16sa1f5as1d51a5sf135as1d5a1sf5a1s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mymed.pythonanywhere.com', 'localhost', '127.0.0.1', 'app']
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://mymed.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'mymed.pythonanywhere.com', '37.32.29.13', 'app']
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://mymed.pythonanywhere.com', 'http://37.32.29.13']
 # CSRF_COOKIE_SECURE=False
 
 
