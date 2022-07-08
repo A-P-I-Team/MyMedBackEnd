@@ -175,7 +175,7 @@ class ActivePrescriptionMedicinesAPIView(ListAPIView):
     # queryset = PrescriptionMedicines.objects.filter(start__isnull=False)
 
     def get_queryset(self):
-        queryset = PrescriptionMedicines.objects.filter(start__isnull=False, prescription__patient=self.request.user.id)
+        queryset = PrescriptionMedicines.objects.prefetch_related('prescription').filter(start__isnull=False, prescription__patient=self.request.user.id)
         items = []
         for item in queryset:
             if item.start + timedelta(days=item.days) > datetime.now(timezone.utc):

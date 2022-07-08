@@ -53,10 +53,11 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
     reminders = ReminderSerializer(read_only=True, many=True)
+    datetime = serializers.DateTimeField(read_only=True, source='prescription.date_time')
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction',
+        fields = ['id', 'prescription', 'datetime', 'medicine', 'dosage', 'fraction',
                   'days', 'start', 'period', 'reminders', 'takenno', 'notify', 'description']
 
 
