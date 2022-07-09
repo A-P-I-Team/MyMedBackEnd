@@ -1,10 +1,14 @@
 import os
-from celery import shared_task as task
+from celery import shared_task
+from django.core.management import call_command
 
 
-@task
-def backup(self):
-    os.system("python manage.py dbbackup")
+@shared_task
+def backup():
+    try:
+        call_command('dbbackup')
+    except:
+        pass
 
 
 
