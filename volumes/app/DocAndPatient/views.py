@@ -201,11 +201,11 @@ class ReminderAPIView(RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         reminder = get_object_or_404(Reminder, pk=kwargs.get('pk'))
-        if reminder.date_time > timezone.now():
-            return Response(
-                data={'message': 'TIME NOT REACHED', 'remaining': (reminder.date_time - timezone.now()).days},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # if reminder.date_time > timezone.now():
+        #     return Response(
+        #         data={'message': 'TIME NOT REACHED', 'remaining': (reminder.date_time - timezone.now()).days},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
 
         partial = kwargs.pop('partial', False)
         serializer = ReminderSerializer(reminder, data=request.data, partial=partial)
