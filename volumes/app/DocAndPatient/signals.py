@@ -73,18 +73,18 @@ def statistic(sender, **kwargs):
                     )
 
             if instance.status:
-                # False --> True
-                if not previous.status:
-                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
-                        takenno=F('takenno') + 1,
-                        nottakenno=F('nottakenno') - 1
-                    )
-
                 # None --> True
                 if previous.status is None:
                     PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
                         takenno=F('takenno') + 1,
                         nottakenno=F('nottakenno')
+                    )
+
+                # False --> True
+                elif not previous.status:
+                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
+                        takenno=F('takenno') + 1,
+                        nottakenno=F('nottakenno') - 1
                     )
 
             # False --> None
