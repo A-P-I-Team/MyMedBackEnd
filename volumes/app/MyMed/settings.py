@@ -201,8 +201,8 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_BEAT_SCHEDULE = {
     'DB-BackUp': {
-        'task': 'MyMed.tasks.backup',
-        'schedule': crontab(minute="*/1"),
+        'task': 'DocAndPatient.tasks.backup',
+        'schedule': crontab(day_of_week=6, hour=0, minute=0),
     },
     'Update_Reminder': {
         'task': 'DocAndPatient.tasks.Set_Reminder_Flase_After_Time',

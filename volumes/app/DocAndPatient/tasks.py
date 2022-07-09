@@ -1,7 +1,7 @@
 from celery import shared_task
+from django.core.management import call_command
 from DocAndPatient.models import Reminder
 from datetime import datetime, timedelta
-
 
 
 @shared_task
@@ -11,4 +11,12 @@ def Set_Reminder_Flase_After_Time():
         if(item.status == None):
             item.status=False
             item.save()
+
+
+@shared_task
+def backup():
+    try:
+        call_command('dbbackup')
+    except:
+        print('DB BackUp Exception Occurred!')
     
