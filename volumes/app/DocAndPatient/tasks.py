@@ -10,3 +10,4 @@ def Set_Reminder_Flase_After_Time():
     for item in myreminders:
         if(item.status == None):
             item.status=False
+    myreminders.save()
