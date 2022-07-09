@@ -4,6 +4,8 @@ from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import *
@@ -198,7 +200,12 @@ class ReminderAPIView(RetrieveUpdateAPIView):
 
     def get_queryset(self):
         return Reminder.objects.filter(prescription_medicine__prescription__patient=self.request.user.id)
+    
+    @method_decorator(cache_page(5*60))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
+    @method_decorator(cache_page(5*60))
     def put(self, request, *args, **kwargs):
         reminder = get_object_or_404(Reminder, pk=kwargs.get('pk'))
         # if reminder.date_time > timezone.now():
