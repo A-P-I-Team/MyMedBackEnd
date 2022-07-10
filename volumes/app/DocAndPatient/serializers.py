@@ -47,7 +47,7 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days']
+        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days' , 'start']
 
 
 class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
@@ -137,7 +137,7 @@ class ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer(serializers.Mo
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'medicine', 'dosage', 'fraction', 'days']
+        fields = ['id', 'medicine', 'dosage', 'fraction', 'days', 'start']
 
 
 # TODO: POST Prescription & Its Medicines In ONE NESTED JSON & ONE STEP
