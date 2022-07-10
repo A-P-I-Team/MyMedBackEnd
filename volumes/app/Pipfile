@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+drf-yasg = "*"
+pillow = "*"
+python-decouple = "*"
+django-nose = "*"
+coverage = "*"
+celery = "*"
+flower = "*"
+django-redis = "*"
+mysqlclient = "*"
+django-filter = "*"
+django-dbbackup = "==4.0.0b0"
+django-celery-beat = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
