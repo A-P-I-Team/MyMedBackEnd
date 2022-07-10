@@ -26,7 +26,8 @@ def reminders(sender, **kwargs):
                         status=None
                     )
                 # Set NotTakenNo
-                instance.nottakenno = 24 * instance.days // instance.period
+                # instance.nottakenno = 24 * instance.days // instance.period
+                instance.nottakenno = 0
 
             if previous.start is not None:
                 if instance.start is None:
@@ -57,16 +58,46 @@ def statistic(sender, **kwargs):
         # Update Instance
         previous = Reminder.objects.get(id=instance.id)
         if previous.status != instance.status:
-            # True --> False OR True --> None
-            if previous.status and (not instance.status or instance.status is None):
+            if previous.status:
+                # True --> None
+                if instance.status is None:
+                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
+                        takenno=F('takenno') - 1,
+                        nottakenno=F('nottakenno')
+                    )
+
+                # True --> False
+                elif not instance.status:
+                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
+                        takenno=F('takenno') - 1,
+                        nottakenno=F('nottakenno') + 1
+                    )
+
+            if instance.status:
+                # None --> True
+                if previous.status is None:
+                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
+                        takenno=F('takenno') + 1,
+                        nottakenno=F('nottakenno')
+                    )
+
+                # False --> True
+                elif not previous.status:
+                    PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
+                        takenno=F('takenno') + 1,
+                        nottakenno=F('nottakenno') - 1
+                    )
+
+            # None --> False
+            if instance.status == False and previous.status is None:
                 PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
-                    takenno=F('takenno') - 1,
+                    takenno=F('takenno'),
                     nottakenno=F('nottakenno') + 1
                 )
 
-            # False --> True OR None --> True
-            if instance.status and (not previous.status or previous.status is None):
+            # False --> None
+            if previous.status == False and instance.status is None:
                 PrescriptionMedicines.objects.filter(id=instance.prescription_medicine.id).update(
-                    takenno=F('takenno') + 1,
+                    takenno=F('takenno'),
                     nottakenno=F('nottakenno') - 1
                 )

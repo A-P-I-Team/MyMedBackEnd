@@ -4,6 +4,8 @@ from django.db.models.aggregates import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import *
@@ -11,12 +13,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.viewsets import ModelViewSet
 from .models import Doctor, Medicine, Prescription, PrescriptionMedicines, Reminder
-from .permissions import IsAdminOrReadOnly, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner
+from .permissions import IsAdminOrReadOnly, IsDoctorOrAdminOrReadOnly, IsPrescriptionOwner, IsPrescriptionMedicineOwnerOrAdmin
 from .serializers import ListDoctorSerializer, FullDoctorSerializer, RetriveDoctorSerializer, SimpleDoctorSerializer, \
     MedicineSerializer, PrescriptionSerializer, PrescriptionMedicinesSerializer, \
     RetrievePrescriptionSerializer, ListPrescriptionsFilteredByDoctorPatientSerializer, \
     ListPrescriptionMedicinesSerializer, RetrievePrescriptionMedicinesSerializer, \
-    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer, ReminderSerializer
+    ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer, ListPrescriptionMedicinesRemindersSerializer, \
+    ReminderSerializer, DoctorUpdatePrescriptionMedicinesSerializer, PatientUpdatePrescriptionMedicinesSerializer
 
 
 # Create your views here.
@@ -127,7 +130,7 @@ class PrescriptionViewSet(ModelViewSet):
 class PrescriptionMedicinesViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['prescription__doctor_id', 'prescription__patient_id']
-    permission_classes = [IsAuthenticated, IsDoctorOrAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsPrescriptionMedicineOwnerOrAdmin]
 
     # def get_queryset(self):
     #     if self.request.user.role == 'D':
@@ -153,6 +156,13 @@ class PrescriptionMedicinesViewSet(ModelViewSet):
                 return ListPrescriptionMedicinesSerializer
         elif self.action == 'retrieve':
             return RetrievePrescriptionMedicinesSerializer
+        elif self.action in ['update', 'partial_update']:
+            if self.request.user.is_staff:
+                return PrescriptionMedicinesSerializer
+            if self.request.user.role == 'D':
+                return DoctorUpdatePrescriptionMedicinesSerializer
+            if self.request.user.role == 'P':
+                return PatientUpdatePrescriptionMedicinesSerializer
 
         return PrescriptionMedicinesSerializer
         # return PrescriptionMedicinesSerializer(many=isinstance(self.request.data, list))
@@ -175,10 +185,12 @@ class ActivePrescriptionMedicinesAPIView(ListAPIView):
     # queryset = PrescriptionMedicines.objects.filter(start__isnull=False)
 
     def get_queryset(self):
-        queryset = PrescriptionMedicines.objects.filter(start__isnull=False, prescription__patient=self.request.user.id)
+        queryset = PrescriptionMedicines.objects.prefetch_related('prescription').filter(prescription__patient=self.request.user.id)
         items = []
         for item in queryset:
-            if item.start + timedelta(days=item.days) > datetime.now(timezone.utc):
+            if item.start is None:
+                items.append(item)
+            elif item.start + timedelta(days=item.days) > datetime.now(timezone.utc):
                 items.append(item)
         return items
 
@@ -190,14 +202,19 @@ class ReminderAPIView(RetrieveUpdateAPIView):
 
     def get_queryset(self):
         return Reminder.objects.filter(prescription_medicine__prescription__patient=self.request.user.id)
+    
+    @method_decorator(cache_page(5*60))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
+    @method_decorator(cache_page(5*60))
     def put(self, request, *args, **kwargs):
         reminder = get_object_or_404(Reminder, pk=kwargs.get('pk'))
-        if reminder.date_time > timezone.now():
-            return Response(
-                data={'message': 'TIME NOT REACHED', 'remaining': (reminder.date_time - timezone.now()).days},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # if reminder.date_time > timezone.now():
+        #     return Response(
+        #         data={'message': 'TIME NOT REACHED', 'remaining': (reminder.date_time - timezone.now()).days},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
 
         partial = kwargs.pop('partial', False)
         serializer = ReminderSerializer(reminder, data=request.data, partial=partial)

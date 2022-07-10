@@ -47,16 +47,17 @@ class ListPrescriptionMedicinesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days']
+        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction', 'days' , 'start']
 
 
 class ListPrescriptionMedicinesRemindersSerializer(serializers.ModelSerializer):
     medicine = serializers.StringRelatedField(read_only=True)
     reminders = ReminderSerializer(read_only=True, many=True)
+    datetime = serializers.DateTimeField(read_only=True, source='prescription.date_time')
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'prescription', 'medicine', 'dosage', 'fraction',
+        fields = ['id', 'prescription', 'datetime', 'medicine', 'dosage', 'fraction',
                   'days', 'start', 'period', 'reminders', 'takenno', 'notify', 'description']
 
 
@@ -94,6 +95,25 @@ class RetrievePrescriptionMedicinesSerializer(serializers.ModelSerializer):
                   'description', 'doctor', 'start', 'period', 'count', 'takenno', 'nottakenno', 'notify']
 
 
+class PatientUpdatePrescriptionMedicinesSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
+    doctor = SimpleDoctorSerializer(source='prescription.doctor', read_only=True)
+    reminders = ReminderSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = PrescriptionMedicines
+        fields = ['medicine', 'doctor', 'start', 'notify', 'reminders']
+
+
+class DoctorUpdatePrescriptionMedicinesSerializer(serializers.ModelSerializer):
+    medicine = serializers.StringRelatedField(read_only=True)
+    patient = SimplePatientSerializer(source='prescription.patient', read_only=True)
+
+    class Meta:
+        model = PrescriptionMedicines
+        fields = ['medicine', 'patient', 'dosage', 'fraction', 'days', 'period', 'description']
+
+
 class RetrievePrescriptionSerializer(serializers.ModelSerializer):
     doctor = SimpleDoctorSerializer(read_only=True)
     patient = SimplePatientSerializer(read_only=True)
@@ -117,7 +137,7 @@ class ListPrescriptionsMedicinesFilteredByDoctorPatientSerializer(serializers.Mo
 
     class Meta:
         model = PrescriptionMedicines
-        fields = ['id', 'medicine', 'dosage', 'fraction', 'days']
+        fields = ['id', 'medicine', 'dosage', 'fraction', 'days', 'start']
 
 
 # TODO: POST Prescription & Its Medicines In ONE NESTED JSON & ONE STEP

@@ -28,8 +28,8 @@ SECRET_KEY = config('SECRET_KEY', default='a5ds16sa1f5as1d51a5sf135as1d5a1sf5a1s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mymed.pythonanywhere.com', 'localhost', '127.0.0.1', 'app']
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://mymed.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'mymed.pythonanywhere.com', '37.32.29.13', 'app']
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://mymed.pythonanywhere.com', 'http://37.32.29.13']
 # CSRF_COOKIE_SECURE=False
 
 
@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'django_filters',
     # Django DB BackUp
     'dbbackup',
+
+    'django_celery_beat',
 
     # User-Defined Apps
     # User app
@@ -98,19 +100,19 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 
 DATABASES = {
     # MariaDB: Production DB
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MARIADB_DATABASE'),
-        'USER': os.environ.get('MARIADB_USER'),
-        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
-        'HOST': os.environ.get('MARIADB_HOST'),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': os.environ.get('MARIADB_DATABASE'),
+    #     'USER': os.environ.get('MARIADB_USER'),
+    #     'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+    #     'HOST': os.environ.get('MARIADB_HOST'),
+    # }
 
     # SQLite: Development DB
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Django DB BackUp Configurations
@@ -152,7 +154,7 @@ REST_FRAMEWORK = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -196,10 +198,58 @@ NOSE_ARGS = [
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 
+CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_BEAT_SCHEDULE = {
     'DB-BackUp': {
-        'task': 'MyMed.tasks.backup',
-        'schedule': crontab(hour=0, minute=0)
+        'task': 'DocAndPatient.tasks.backup',
+        'schedule': crontab(day_of_week=6, hour=0, minute=0),
+    },
+    'Update_Reminder': {
+        'task': 'DocAndPatient.tasks.Set_Reminder_Flase_After_Time',
+        'schedule': crontab(minute="*/30"),
+    },
+    'Send_Remined_Emails': {
+        'task': 'User.tasks.Send_Reminder_Email',
+        'schedule': crontab(minute="*/15"),
+
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} ({levelname}) - {name} - {message}',
+            'style': '{'
+        }
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        # 'TIMEOUT': 10 * 60,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
