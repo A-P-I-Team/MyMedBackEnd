@@ -100,19 +100,19 @@ WSGI_APPLICATION = 'MyMed.wsgi.application'
 
 DATABASES = {
     # MariaDB: Production DB
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MARIADB_DATABASE'),
-        'USER': os.environ.get('MARIADB_USER'),
-        'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
-        'HOST': os.environ.get('MARIADB_HOST'),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': os.environ.get('MARIADB_DATABASE'),
+    #     'USER': os.environ.get('MARIADB_USER'),
+    #     'PASSWORD': os.environ.get('MARIADB_PASSWORD'),
+    #     'HOST': os.environ.get('MARIADB_HOST'),
+    # }
 
     # SQLite: Development DB
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Django DB BackUp Configurations
